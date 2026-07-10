@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_USER = 'lebaoo12'
+        KUBECONFIG_ID = 'k8s-kubeconfig'
+    }
+    stages {
+        stage('Deploy Tag to Staging') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_ID}", variable: 'KUBECONFIG')]) {
+                    script {
+                        def gitTag = sh(script: "git describe --tags --abbrev=0 2>/dev/null || echo main", returnStdout: true).trim()
+                        echo "🎁 Deploy phiên bản ${gitTag} vào namespace STAGING..."
+                        
+                        def serviceMap = [
+                            'product': 'product', 'media': 'media', 'customer': 'customer',
+                            'cart': 'cart', 'tax': 'tax', 'order': 'order',
+                            'inventory': 'inventory', 'search': 'search',
+                            'storefront-bff': 'storefront-bff', 'storefront-ui': 'storefront',
+                            'backoffice-bff': 'backoffice-bff', 'backoffice-ui': 'backoffice'
+                        ]
+
+                        serviceMap.each { deploymentName, imageName ->
+                            sh "KUBECONFIG=\$KUBECONFIG kubectl set image deployment/${deploymentName} ${deploymentName}=${DOCKER_USER}/yas-${imageName}:${gitTag} -n staging"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

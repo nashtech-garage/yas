@@ -1,0 +1,65 @@
+# =====================================================================
+# RELEASE theo Git tag - build & push TẤT CẢ service với đúng tag đó
+# Luồng: push git tag (vd v1.0.0) -> build hết 17 service -> push image :v1.0.0
+# Mục đích: để Jenkins STAGING deploy theo version tag (image :v1.0.0 phải tồn tại).
+# Kích hoạt: git tag v1.0.0 && git push origin v1.0.0
+# Đặt tại: .github/workflows/release.yml ; cần Secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+# =====================================================================
+name: Release - Build ALL services by Git tag
+
+on:
+  push:
+    tags: ["v*"]          # chỉ chạy khi push tag bắt đầu bằng v (v1.0.0, v2.3.1...)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { service: product, type: maven }
+          - { service: media, type: maven }
+          - { service: customer, type: maven }
+          - { service: cart, type: maven }
+          - { service: tax, type: maven }
+          - { service: order, type: maven }
+          - { service: rating, type: maven }
+          - { service: location, type: maven }
+          - { service: inventory, type: maven }
+          - { service: promotion, type: maven }
+          - { service: payment, type: maven }
+          - { service: search, type: maven }
+          - { service: storefront-bff, type: maven }
+          - { service: backoffice-bff, type: maven }
+          - { service: sampledata, type: maven }
+          - { service: storefront, type: node }
+          - { service: backoffice, type: node }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        if: matrix.type == 'maven'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+          cache: "maven"
+
+      - name: Build jar with Maven (${{ matrix.service }})
+        if: matrix.type == 'maven'
+        run: mvn -B clean install -pl ${{ matrix.service }} -am -DskipTests
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # github.ref_name khi push tag = tên tag (vd v1.0.0) -> image :v1.0.0
+      - name: Build and push (git tag)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yas-${{ matrix.service }}:${{ github.ref_name }}
