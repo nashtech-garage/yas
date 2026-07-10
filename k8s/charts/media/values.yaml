@@ -13,7 +13,9 @@ backend:
       configMap:
         name: media-application-configmap
     - name: media-storage
-      emptyDir: {}
+      hostPath:
+        path: /mnt/f/Devops/yas/sampledata/images
+        type: Directory
   extraVolumeMounts:
     - name: media-application
       mountPath: /opt/yas/media
