@@ -527,6 +527,8 @@ spec:
         secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
         redirectUris:
           - {{ .Values.backofficeRedirectUrl }}/*
+          - http://backoffice.dev.local.com/*
+          - http://backoffice.staging.local.com/*
           - http://localhost:3000/*
           - http://localhost:8087/*
         webOrigins: [ ]
@@ -821,6 +823,8 @@ spec:
         secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
         redirectUris:
           - {{ .Values.storefrontRedirectUrl }}/*
+          - http://storefront.dev.local.com/*
+          - http://storefront.staging.local.com/*
           - http://localhost:8087/*
         webOrigins: [ ]
         notBefore: 0

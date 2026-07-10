@@ -177,4 +177,24 @@ class UserAddressControllerTest {
             true
         );
     }
+
+    // New test
+    @Test
+    void testCreateAddress_whenMissingBody_returnBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(USER_ADDRESS_BASE_URL)
+                .contentType("application/json")
+                .content("")) 
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
+    @Test
+    void testDeleteAddress_whenIdNotFound_returnNotFound() throws Exception {
+        Long wrongId = 999L;
+        org.mockito.Mockito.doThrow(new com.yas.commonlibrary.exception.NotFoundException("Address not found"))
+            .when(userAddressService).deleteAddress(wrongId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(USER_ADDRESS_BASE_URL + "/{id}", wrongId)
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 }

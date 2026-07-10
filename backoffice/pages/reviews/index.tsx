@@ -7,8 +7,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import ReactPaginate from 'react-paginate';
 import { toast } from 'react-toastify';
 
-import RatingSearch from 'modules/rating/components/RatingSearch';
-import { RatingSearchForm } from 'modules/rating/models/RatingSearchForm';
+import RatingSearch from '../../modules/rating/components/RatingSearch';
+import { RatingSearchForm } from '../../modules/rating/models/RatingSearchForm';
 import type { Rating } from '../../modules/rating/models/Rating';
 import { deleteRatingById, getRatings } from '../../modules/rating/services/RatingService';
 

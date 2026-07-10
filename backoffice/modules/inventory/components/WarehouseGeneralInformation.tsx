@@ -5,7 +5,7 @@ import { StateOrProvince } from '@locationModels/StateOrProvince';
 import { getCountries } from '@locationServices/CountryService';
 import { getDistricts } from '@locationServices/DistrictService';
 import { getStatesOrProvinces } from '@locationServices/StateOrProvinceService';
-import { Input } from 'common/items/Input';
+import { Input } from '../../../common/items/Input';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';

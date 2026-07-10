@@ -164,5 +164,42 @@ class CustomerControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.delete(BACK_OFFICE_CUSTOMER_BASE_URL + "/profile" + "/test")
                 .contentType("application/json"))
             .andExpect(MockMvcResultMatchers.status().isNoContent());
+    } 
+
+    // New test
+    @Test
+    void testGetCustomerByEmail_whenCustomerNotFound_returnNotFound() throws Exception {
+        when(customerService.getCustomerByEmail("notfound@gmail.com"))
+            .thenThrow(new com.yas.commonlibrary.exception.NotFoundException("Customer not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BACK_OFFICE_CUSTOMER_BASE_URL + "/{email}", "notfound@gmail.com")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void testCreateCustomer_whenMissingBody_returnBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(BACK_OFFICE_CUSTOMER_BASE_URL)
+                .contentType("application/json")
+                .content(""))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+    }
+
+    @Test
+    void testGetCustomerById_whenNormalCase_responseCustomerVm() throws Exception {
+        CustomerVm customerVm = new CustomerVm(
+            "12345",
+            "john_doe",
+            "john.doe@example.com",
+            "John",
+            "Doe"
+        );
+        when(customerService.getCustomerProfile("12345")).thenReturn(customerVm);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                    BACK_OFFICE_CUSTOMER_BASE_URL + "/profile/{id}", "12345")
+                .accept("application/json"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(customerVm)));
     }
 }

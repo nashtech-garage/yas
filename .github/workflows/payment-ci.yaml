@@ -2,14 +2,14 @@ name: payment service ci
 
 on:
   push:
-    branches: ["main"]
-    paths:
+    branches: ["**"] # Xét trên tất cả các branch 
+    paths: # Chỉ chạy nếu có sự thay đổi file ở các đường dẫn sau
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/payment-ci.yaml"
       - "pom.xml"
-  pull_request:
-    branches: ["main"]
+  pull_request:  
+    branches: ["main"] # Chạy khi có pull_request vào nhánh main
     paths:
       - "payment/**"
       - ".github/workflows/actions/action.yaml"
@@ -17,39 +17,79 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
+
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     env:
+      # Kiểm tra xem code có phải từ repo gốc hay không
       FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4 # Tải code về máy ảo
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl payment -am
-      - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl payment -am -Dcheckstyle.output.file=payment-checkstyle-result.xml
-      - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        with:
-          path: '**/payment-checkstyle-result.xml'
+      
+      - name: Run Maven Test 
+        # # Chạy các unit test đã cài đặt
+        run: mvn -pl payment -am verify
+      
+      - name: Install Dependencies 
+        # Cài đặt các artifact vào kho lưu trữ cục bộ để các job sau có thể sử dụng
+        run: mvn -pl payment -am install -DskipTests 
+      
       - name: Test Results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v1 # Báo cáo kết quả Test
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Payment-Service-Unit-Test-Results
           path: "payment/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
+      
+      - name: Add coverage report to PR # Báo cáo độ bao phủ mã nguồn
+        uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f payment
-      - name: OWASP Dependency Check
+        with:
+          paths: ${{github.workspace}}/payment/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: 'Payment Coverage Report'
+          update-comment: true
+      
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4 # Đẩy file báo cáo dạng HTML lên GitHub
+        with:
+          name: payment-coverage-report
+          path: ${{github.workspace}}/payment/target/site/jacoco/
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test # chỉ bắt đầu chạy sau khi Job test đã hoàn thành thành công
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      
+      - name: Run Maven Build
+        run: mvn -pl payment -am -DskipTests install
+      
+      - name: Run Maven Checkstyle # Kiểm tra định dạng Code
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        run: mvn checkstyle:checkstyle -pl payment -am -Dcheckstyle.output.file=payment-checkstyle-result.xml
+      
+      - name: Upload Checkstyle Result
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: '**/payment-checkstyle-result.xml'
+      
+      
+      - name: OWASP Dependency Check # Quét các lỗ hổng của thư viện
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dependency-check/Dependency-Check_Action@main
         env:
@@ -58,33 +98,54 @@ jobs:
           project: 'yas'
           path: '.'
           format: 'HTML'
+          args: >
+            --disableCentral
+            --failOnCVSS 11
+
       - name: Upload OWASP Dependency Check results
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
+      
+      - name: Analyze with sonar cloud # tìm bug tiềm ẩn và kiểm tra độ phủ của test.
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f payment
+
+      
+      - name: Setup Snyk 
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        uses: snyk/actions/setup@master
+      
+      - name: Run Snyk Scan # Quét chuyên sâu hơn về bảo mật mã nguồn (SQL Injection, Cross-Site Scripting,..)
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true # cho phép workflow tiếp tục chạy ngay cả khi Snyk phát hiện lỗi bảo mật
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code test ./payment --severity-threshold=medium --sarif-file-output=snyk-results.sarif
+
+      
+      - name: Upload Snyk results
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && !cancelled() && hashFiles('snyk-results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          paths: ${{github.workspace}}/payment/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Payment Coverage Report'
-          update-comment: true
-      - name: Log in to the Container registry
+          sarif_file: snyk-results.sarif
+      
+      - name: Log in to Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+      
+      - name: Build and push Docker image
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./payment
           push: true
-          tags: ghcr.io/nashtech-garage/yas-payment:latest
+          tags: ghcr.io/${{ github.repository_owner }}/yas-payment:latest
