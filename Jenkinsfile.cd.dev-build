@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'PRODUCT_BRANCH', defaultValue: 'main', description: 'product')
+        string(name: 'MEDIA_BRANCH', defaultValue: 'main', description: 'media')
+        string(name: 'CUSTOMER_BRANCH', defaultValue: 'main', description: 'customer')
+        string(name: 'CART_BRANCH', defaultValue: 'main', description: 'cart')
+        string(name: 'TAX_BRANCH', defaultValue: 'main', description: 'tax')
+        string(name: 'ORDER_BRANCH', defaultValue: 'main', description: 'order')
+        string(name: 'INVENTORY_BRANCH', defaultValue: 'main', description: 'inventory')
+        string(name: 'SEARCH_BRANCH', defaultValue: 'main', description: 'search')
+        string(name: 'SAMPLEDATA_BRANCH', defaultValue: 'main', description: 'sampledata')
+        string(name: 'STOREFRONT_BRANCH', defaultValue: 'main', description: 'storefront (BFF)')
+        string(name: 'STOREFRONT_NEXTJS_BRANCH', defaultValue: 'main', description: 'storefront-nextjs (UI)')
+        string(name: 'BACKOFFICE_BRANCH', defaultValue: 'main', description: 'backoffice (BFF)')
+        string(name: 'BACKOFFICE_NEXTJS_BRANCH', defaultValue: 'main', description: 'backoffice-nextjs (UI)')
+    }
+
+    environment {
+        REPO_URL = 'https://github.com/TuanAnh20-10/yas.git'
+        DOCKER_USER = 'lebaoo12'
+        KUBECONFIG_ID = 'k8s-kubeconfig'
+    }
+
+    stages {
+        stage('Resolve Tags & Deploy to K8S (Default)') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_ID}", variable: 'KUBECONFIG')]) {
+                    script {
+                        // Map ánh xạ: [Tên_Deployment_K8s : Hậu_tố_Image_Docker]
+                        def serviceMap = [
+                            'product': 'product', 'media': 'media', 'customer': 'customer',
+                            'cart': 'cart', 'tax': 'tax', 'order': 'order',
+                            'inventory': 'inventory', 'search': 'search', 'sampledata': 'sampledata',
+                            'storefront': 'storefront-bff',
+                            'storefront-nextjs': 'storefront',
+                            'backoffice': 'backoffice-bff',
+                            'backoffice-nextjs': 'backoffice'
+                        ]
+                        
+                        serviceMap.each { deploymentName, imageName ->
+                            // Biến đổi tên tham số, vd: storefront-nextjs -> STOREFRONT_NEXTJS_BRANCH
+                            def paramKey = "${deploymentName.toUpperCase().replace('-', '_')}_BRANCH"
+                            def branchName = params[paramKey]
+                            def imageTag = 'main'
+                            
+                            if (branchName != 'main') {
+                                echo "🔍 Lấy Commit ID nhánh [${branchName}] cho [${deploymentName}]..."
+                                imageTag = sh(script: "git ls-remote ${REPO_URL} refs/heads/${branchName} | cut -c1-7", returnStdout: true).trim()
+                            }
+
+                            def fullImage = "${DOCKER_USER}/yas-${imageName}:${imageTag}"
+                            echo "🚀 Cập nhật deployment/${deploymentName} -> ${fullImage}"
+                            
+                            sh "KUBECONFIG=\$KUBECONFIG kubectl set image deployment/${deploymentName} ${deploymentName}=${fullImage} -n default"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Print Access Info') {
+            steps {
+                script {
+                    echo "=================================================="
+                    echo "✅ DEPLOY THÀNH CÔNG! DEV CẬP NHẬT /ETC/HOSTS:"
+                    echo "192.168.1.131   yas.local storefront backoffice api.yas.local"
+                    echo "--------------------------------------------------"
+                    echo "🔗 TRUY CẬP GIAO DIỆN CHÍNH:"
+                    echo "👉 Storefront UI: http://storefront:30090"
+                    echo "👉 Backoffice UI: http://backoffice:30090"
+                    echo "👉 Keycloak:      http://yas.local:30080"
+                    echo "=================================================="
+                }
+            }
+        }
+    }
+}
