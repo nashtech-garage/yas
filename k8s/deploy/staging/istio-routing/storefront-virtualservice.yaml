@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: storefront-public-routes
+  namespace: yas-staging
+spec:
+  hosts:
+    - storefront.staging.yas.local.com
+  gateways:
+    - yas-staging-public-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      route:
+        - destination:
+            host: storefront-bff
+            port:
+              number: 80
+    - route:
+        - destination:
+            host: storefront-ui
+            port:
+              number: 80
+
