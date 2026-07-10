@@ -11,6 +11,10 @@ spec:
     repoURL: 'https://github.com/luc1fe4/yas.git'
     targetRevision: 'main'
     path: k8s/charts/swagger-ui
+    helm:
+      parameters:
+        - name: ingress.host
+          value: 'api.dev.yas.local.com'
   destination:
     server: https://kubernetes.default.svc
     namespace: dev

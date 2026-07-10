@@ -17,6 +17,8 @@ spec:
           value: 'fe5bb8b0'
         - name: backend.image.repository
           value: 'besukem/storefront-bff'
+        - name: backend.ingress.host
+          value: 'storefront.dev.yas.local.com'
   destination:
     server: https://kubernetes.default.svc
     namespace: dev
