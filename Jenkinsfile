@@ -74,7 +74,7 @@ pipeline {
                         -pl media -am \
                         -Dsonar.projectKey=yas-media \
                         -Dsonar.projectName="YAS Media Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -151,7 +151,7 @@ pipeline {
                         -pl product -am \
                         -Dsonar.projectKey=yas-product \
                         -Dsonar.projectName="YAS Product Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -237,7 +237,7 @@ pipeline {
                         -pl cart -am \
                         -Dsonar.projectKey=yas-cart \
                         -Dsonar.projectName="YAS Cart Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -324,7 +324,7 @@ pipeline {
                         -pl payment-paypal -am \
                         -Dsonar.projectKey=yas-payment-paypal \
                         -Dsonar.projectName="YAS Payment Paypal Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -415,7 +415,7 @@ pipeline {
                         -pl customer -am \
                         -Dsonar.projectKey=yas-customer \
                         -Dsonar.projectName="YAS Customer Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -505,7 +505,7 @@ pipeline {
                         -pl delivery -am \
                         -Dsonar.projectKey=yas-delivery \
                         -Dsonar.projectName="YAS Delivery Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -595,7 +595,7 @@ pipeline {
                         -pl inventory -am \
                         -Dsonar.projectKey=yas-inventory \
                         -Dsonar.projectName="YAS Inventory Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -673,7 +673,7 @@ pipeline {
                         -pl rating -am \
                         -Dsonar.projectKey=yas-rating \
                         -Dsonar.projectName="YAS Rating Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -747,7 +747,7 @@ pipeline {
                         -pl webhook -am \
                         -Dsonar.projectKey=yas-webhook \
                         -Dsonar.projectName="YAS Webhook Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -820,7 +820,7 @@ pipeline {
                         -pl location -am \
                         -Dsonar.projectKey=yas-location \
                         -Dsonar.projectName="YAS Location Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -893,7 +893,7 @@ pipeline {
                         -pl order -am \
                         -Dsonar.projectKey=yas-order \
                         -Dsonar.projectName="YAS Order Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -966,7 +966,7 @@ pipeline {
                         -pl search -am \
                         -Dsonar.projectKey=yas-search \
                         -Dsonar.projectName="YAS Search Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
@@ -1040,7 +1040,7 @@ pipeline {
                         -pl recommendation -am \
                         -Dsonar.projectKey=yas-recommendation \
                         -Dsonar.projectName="YAS Recommendation Service" \
-                        -Dsonar.host.url=http://192.168.31.16:9000 \
+                        -Dsonar.host.url=http://172.22.80.1:9000 \
                         -Dsonar.login=squ_e4b2aecfd410669cc972426e5a7b160c1760e2e5 \
                         -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         '''
