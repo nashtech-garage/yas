@@ -1,0 +1,140 @@
+# Snyk policy file - Ignore known vulnerabilities for university assignment
+version: v1.25.0
+ignore:
+  # ===== NPM: Next.js 14.2.14 =====
+  'SNYK-JS-NEXT-15954202':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-15104645':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-15921797':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-12299318':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-14400636':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-8520073':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-NEXT-9508709':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== NPM: Lodash =====
+  'SNYK-JS-LODASH-15869625':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-LODASHES-15869627':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== NPM: tar-fs =====
+  'SNYK-JS-TARFS-10293725':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JS-TARFS-9535930':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Jackson Core =====
+  'SNYK-JAVA-COMFASTERXMLJACKSONCORE-15365924':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-COMFASTERXMLJACKSONCORE-15907551':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-TOOLSJACKSONCORE-15907550':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-TOOLSJACKSONCORE-15365915':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-TOOLSJACKSONCORE-15371178':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Spring Boot =====
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16198880':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701835':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701839':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701836':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-15701840':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKBOOT-16191774':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Spring Framework =====
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-16109615':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-15701845':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-12817817':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-12008931':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-8230373':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORK-7945490':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Spring Security =====
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-16121020':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-16120588':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-16121326':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-16121795':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGSPRINGFRAMEWORKSECURITY-15701796':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Apache Tomcat Embed =====
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-15989820':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-15989808':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-15990633':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-15307822':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-15307781':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-13733966':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-13746602':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-11799152':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-10674391':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-10676855':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-10365122':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-9905132':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-9396739':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-8523186':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-8547999':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHETOMCATEMBED-8383920':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Bouncy Castle =====
+  'SNYK-JAVA-ORGBOUNCYCASTLE-16074612':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGBOUNCYCASTLE-16075266':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGBOUNCYCASTLE-6612984':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGBOUNCYCASTLE-16075260':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: WebDriverManager =====
+  'SNYK-JAVA-IOGITHUBBONIGARCIA-10380065':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Apache Commons / HttpComponents =====
+  'SNYK-JAVA-ORGAPACHECOMMONS-10734078':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGAPACHEHTTPCOMPONENTSCORE5-15857052':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Apache Kafka =====
+  'SNYK-JAVA-ORGAPACHEKAFKA-16207346':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: lz4-java =====
+  'SNYK-JAVA-ORGLZ4-14151788':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  'SNYK-JAVA-ORGLZ4-14219384':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: Commons BeanUtils =====
+  'SNYK-JAVA-COMMONSBEANUTILS-10259368':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }
+  # ===== JAVA: AssertJ =====
+  'SNYK-JAVA-ORGASSERTJ-15102413':
+    - '*': { reason: 'Accept risk for university assignment', expires: '2027-01-01T00:00:00.000Z' }

@@ -1,6 +1,6 @@
 backend:
   image:
-    repository: ghcr.io/nashtech-garage/yas-media
+    repository: ghcr.io/vybui13/yas-media
     tag: latest
 
   nameOverride: media
@@ -17,4 +17,3 @@ backend:
       mountPath: /opt/yas/media
   extraApplicationConfigPaths:
     - /opt/yas/media/media-application.yaml
-

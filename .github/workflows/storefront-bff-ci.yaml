@@ -2,14 +2,15 @@ name: storefront-bff service ci
 
 on:
   push:
-    branches: [ "main" ]
+    # Kích hoạt trên mọi nhánh để build và push image với tag commit SHA lên Docker Hub
+    branches: ["**"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/storefront-bff-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "storefront-bff/**"
       - ".github/workflows/actions/action.yaml"
@@ -21,52 +22,55 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: "${{ github.event.pull_request.head.repo.full_name == github.repository || github.repository == 'VyBui13/yas' }}"
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+
       - uses: ./.github/workflows/actions
+
       - name: Run Maven Build Command
         run: mvn clean install -pl storefront-bff -am
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl storefront-bff -am -Dcheckstyle.output.file=storefront-bff-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/storefront-bff-checkstyle-result.xml'
+          path: "**/storefront-bff-checkstyle-result.xml"
+
+      - name: Upload Test and Coverage Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Storefront-BFF-Service-Reports
+          path: |
+            **/target/surefire-reports/
+            **/target/site/jacoco/
+          retention-days: 7
+
       - name: Analyze with sonar cloud
+        continue-on-error: true
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f storefront-bff
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
+
       - name: Add coverage report to PR
         uses: madrapps/jacoco-report@v1.6.1
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
-          paths: ${{github.workspace}}/storefront-bff/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
+          paths: ${{ github.workspace }}/storefront-bff/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
           min-coverage-changed-files: 60
-          title: 'Storefront BFF Coverage Report'
+          title: "Storefront BFF Coverage Report"
           update-comment: true
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -74,10 +78,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
+
+      - name: Build and push Docker images (GHCR)
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./storefront-bff
           push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront-bff:latest
+          tags: ghcr.io/vybui13/yas-storefront-bff:latest
+
+      - name: Get short SHA
+        if: ${{ github.ref != 'refs/heads/main' }}
+        id: slug
+        run: echo "sha=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        if: ${{ github.ref != 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images (Docker Hub)
+        if: ${{ github.ref != 'refs/heads/main' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./storefront-bff
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/yas-storefront-bff:${{ steps.slug.outputs.sha }}

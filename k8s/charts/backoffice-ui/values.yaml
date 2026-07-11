@@ -1,6 +1,6 @@
 ui:
   image:
-    repository: ghcr.io/nashtech-garage/yas-backoffice
+    repository: ghcr.io/vybui13/yas-backoffice
     tag: latest
   nameOverride: backoffice-ui
   fullnameOverride: backoffice-ui

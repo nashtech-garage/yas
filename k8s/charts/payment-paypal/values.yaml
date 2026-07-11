@@ -1,6 +1,6 @@
 backend:
   image:
-    repository: ghcr.io/nashtech-garage/yas-payment-paypal
+    repository: ghcr.io/vybui13/yas-payment-paypal
     tag: latest
 
   nameOverride: payment-paypal

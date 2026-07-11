@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: yas-cart-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/VyBui13/yas.git'
+    targetRevision: main
+    path: k8s/charts/cart
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: backend.image.tag
+          value: latest
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

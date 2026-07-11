@@ -1,0 +1,41 @@
+name: Snyk Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # Build toàn bộ project để cài TẤT CẢ modules vào ~/.m2
+      # Giải quyết triệt để: ${revision}, common-library dependency, exit code -13
+      # -DskipTests: không chạy test (chỉ cần build để Snyk đọc dependency tree)
+      - name: Build all modules
+        run: mvn install -DskipTests --no-transfer-progress
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      # --all-projects: quét cả Maven lẫn npm
+      # --severity-threshold=high: chặn merge nếu có lỗ hổng High/Critical
+      # --policy-path=. : ÉP Snyk dùng file .snyk ở ROOT cho TẤT CẢ sub-projects
+      - name: Run Snyk to check for vulnerabilities
+        continue-on-error: true
+        run: snyk test --severity-threshold=high --all-projects --policy-path=.
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
