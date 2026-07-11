@@ -100,7 +100,7 @@ pipeline {
                         // Mặc định fallback về môi trường dev cho các nhánh khác (dev, develop, feat/*, v.v.)
                         environment = 'dev'
                         gitopsValuesFile = 'dev/values.yaml'
-                        imageTag = "dev-${commitId}"
+                        imageTag = "${commitId}"
                     }
                     
                     env.GITOPS_VALUES_FILE = gitopsValuesFile
