@@ -11,6 +11,12 @@ spec:
     repoURL: 'https://github.com/luc1fe4/yas.git'
     targetRevision: 'gitops-dev'
     path: k8s/charts/backoffice-ui
+    helm:
+      parameters:
+        - name: ui.image.tag
+          value: '88f6c0b6'
+        - name: ui.image.repository
+          value: 'besukem/backoffice'
   destination:
     server: https://kubernetes.default.svc
     namespace: dev

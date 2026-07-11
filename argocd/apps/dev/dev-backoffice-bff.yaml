@@ -14,7 +14,7 @@ spec:
     helm:
       parameters:
         - name: backend.image.tag
-          value: 'fe5bb8b0'
+          value: '88f6c0b6'
         - name: backend.image.repository
           value: 'besukem/backoffice-bff'
         - name: backend.ingress.host
