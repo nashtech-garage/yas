@@ -1,0 +1,55 @@
+name: cleanup_developer_environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Nhập DELETE để xóa toàn bộ namespace yas-developer"
+        required: true
+        type: string
+
+concurrency:
+  group: yas-developer-environment
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Delete yas-developer
+    runs-on: self-hosted
+    steps:
+      - name: Validate confirmation
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.confirmation }}" != "DELETE" ]; then
+            echo "::error::Confirmation must be DELETE"
+            exit 1
+          fi
+
+      - name: Show resources before cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          kubectl get namespace yas-developer
+          helm list -n yas-developer || true
+          kubectl get deploy,pod,svc,ingress -n yas-developer || true
+
+      - name: Delete developer environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          kubectl delete namespace yas-developer \
+            --wait=true \
+            --timeout=600s
+
+      - name: Verify cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          if kubectl get namespace yas-developer >/dev/null 2>&1; then
+            echo "::error::yas-developer still exists"
+            exit 1
+          fi
+
+          echo "yas-developer was deleted. Long-lived environments were not touched."
+          kubectl get namespace yas-dev yas-staging --ignore-not-found

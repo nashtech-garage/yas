@@ -1,0 +1,185 @@
+name: Update GitOps image tag
+description: Checkout GitOps repository, update ArgoCD Helm image tag, commit and push
+
+inputs:
+  image-name:
+    description: Docker image name, for example yas-cart
+    required: true
+  dockerhub-username:
+    description: Docker Hub username used in GitOps image.repository
+    required: true
+  image-tag:
+    description: Docker image tag to write to GitOps, usually github.sha
+    required: true
+  source-branch:
+    description: Source application branch that produced this image tag
+    required: false
+    default: unknown
+  gitops-repository:
+    description: GitOps repository in owner/repo format
+    required: true
+    default: Duong-Dung/yas-gitops
+  gitops-branch:
+    description: GitOps branch to update
+    required: true
+    default: main
+  gitops-token:
+    description: GitHub PAT with write access to the GitOps repository
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout GitOps repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.gitops-repository }}
+        ref: ${{ inputs.gitops-branch }}
+        token: ${{ inputs.gitops-token }}
+        path: gitops
+
+    - name: Update image tag in ArgoCD Applications
+      id: update
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image-name }}
+        DOCKERHUB_USERNAME: ${{ inputs.dockerhub-username }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        SOURCE_BRANCH: ${{ inputs.source-branch }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "$DOCKERHUB_USERNAME" ]; then
+          echo "DOCKERHUB_USERNAME is empty. Please set GitHub variable DOCKERHUB_USERNAME."
+          exit 1
+        fi
+
+        if [ -z "$IMAGE_TAG" ]; then
+          echo "IMAGE_TAG is empty. Cannot update GitOps repository."
+          exit 1
+        fi
+
+        cd gitops
+
+        python3 <<'PY'
+        import os
+        import re
+        from pathlib import Path
+
+        image_name = os.environ["IMAGE_NAME"]
+        dockerhub_username = os.environ["DOCKERHUB_USERNAME"]
+        image_repository = f"{dockerhub_username}/{image_name}"
+        image_tag = os.environ["IMAGE_TAG"]
+
+        value_pattern = re.compile(r'^(?P<prefix>\s*value:\s*)(?P<quote>["\']?)(?P<value>[^"\']*)(?P=quote)(?P<suffix>\s*)$')
+        name_pattern = re.compile(r'^\s*-\s*name:\s*["\']?(?P<name>[^"\']+)["\']?\s*$')
+
+        def replace_value(line: str, new_value: str) -> str:
+            match = value_pattern.match(line)
+            if not match:
+                return line
+            quote = match.group("quote") or '"'
+            return f'{match.group("prefix")}{quote}{new_value}{quote}{match.group("suffix")}'
+
+        def find_value_line(lines, start_index):
+            index = start_index + 1
+            while index < len(lines):
+                if name_pattern.match(lines[index]):
+                    return None
+                if value_pattern.match(lines[index]):
+                    return index
+                index += 1
+            return None
+
+        updated_files = []
+        candidate_files = sorted(Path("apps").glob("*/*.yaml"))
+
+        for path in candidate_files:
+            original = path.read_text(encoding="utf-8")
+            lines = original.splitlines()
+            changed = False
+
+            for index, line in enumerate(lines):
+                name_match = name_pattern.match(line)
+                if not name_match:
+                    continue
+
+                parameter_name = name_match.group("name")
+                if not parameter_name.endswith("image.repository"):
+                    continue
+
+                repo_value_index = find_value_line(lines, index)
+                if repo_value_index is None:
+                    continue
+
+                repo_value = value_pattern.match(lines[repo_value_index]).group("value")
+                if not (
+                    repo_value == image_repository
+                    or repo_value == image_name
+                    or repo_value.endswith(f"/{image_name}")
+                ):
+                    continue
+
+                lines[repo_value_index] = replace_value(lines[repo_value_index], image_repository)
+                changed = True
+
+                for tag_index in range(repo_value_index + 1, len(lines)):
+                    tag_name_match = name_pattern.match(lines[tag_index])
+                    if not tag_name_match:
+                        continue
+                    if not tag_name_match.group("name").endswith("image.tag"):
+                        continue
+
+                    tag_value_index = find_value_line(lines, tag_index)
+                    if tag_value_index is not None:
+                        lines[tag_value_index] = replace_value(lines[tag_value_index], image_tag)
+                        changed = True
+                    break
+
+            if changed:
+                new_content = "\n".join(lines) + "\n"
+                if new_content != original:
+                    path.write_text(new_content, encoding="utf-8")
+                    updated_files.append(str(path))
+
+        output_path = os.environ["GITHUB_OUTPUT"]
+        with open(output_path, "a", encoding="utf-8") as output:
+            output.write(f"changed={'true' if updated_files else 'false'}\n")
+
+        if updated_files:
+            print(f"Updated GitOps image repository to {image_repository}")
+            print(f"Updated GitOps image tag to {image_tag}")
+            print(f"Source branch: {os.environ.get('SOURCE_BRANCH', 'unknown')}")
+            print("Updated files:")
+            for item in updated_files:
+                print(f"- {item}")
+        else:
+            print(f"No GitOps Application matched image {image_name}. Nothing to commit.")
+        PY
+
+    - name: Commit and push GitOps changes
+      if: steps.update.outputs.changed == 'true'
+      shell: bash
+      env:
+        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        GITOPS_BRANCH: ${{ inputs.gitops-branch }}
+        SOURCE_BRANCH: ${{ inputs.source-branch }}
+      run: |
+        set -euo pipefail
+
+        cd gitops
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+        git diff -- apps
+        git add apps
+
+        if git diff --cached --quiet; then
+          echo "No staged GitOps changes. Nothing to commit."
+          exit 0
+        fi
+
+        git commit -m "chore(gitops): update ${IMAGE_NAME} image tag to ${IMAGE_TAG} from ${SOURCE_BRANCH}"
+        git pull --rebase origin "${GITOPS_BRANCH}"
+        git push origin "HEAD:${GITOPS_BRANCH}"

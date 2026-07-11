@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.3",
@@ -30,13 +32,19 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "18.0.0",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
     "@types/react-star-ratings": "^2.3.0",
     "eslint": "8.18.0",
     "eslint-config-next": "^14.2.14",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "prettier": "2.7.1",
+    "ts-jest": "^29.4.9",
     "typescript": "4.7.4"
   }
 }

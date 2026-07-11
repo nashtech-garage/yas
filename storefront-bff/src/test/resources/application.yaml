@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: storefront-bff-test
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9000/realms/test
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: test-client
+            client-secret: test-secret
+            scope: openid, profile, email
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  session:
+    store-type: none
+
+yas:
+  services:
+    customer: http://localhost:8080/customer
+    cart: http://localhost:8080/cart
+    token-identity: http://localhost:9000/token

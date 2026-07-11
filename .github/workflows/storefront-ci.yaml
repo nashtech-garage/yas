@@ -2,58 +2,184 @@ name: storefront service ci
 
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - "storefront/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/storefront-ci.yaml"
   pull_request:
-    branches: [ "main" ]
-    paths:
-      - "storefront/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/storefront-ci.yaml"
   workflow_dispatch:
 
 jobs:
-  Build:
+  detect-changes:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    outputs:
+      service: ${{ steps.filter.outputs.service }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: filter
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: actions/setup-node@v4
+          filters: |
+            service:
+              - 'storefront/**'
+              - '.github/workflows/storefront-ci.yaml'
+
+  test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
         working-directory: storefront
-      - run: npm run build
+
+      - name: Build
+        run: npm run build
         working-directory: storefront
-      - run: npm run lint
+
+      - name: Lint
+        run: npm run lint
         working-directory: storefront
-      - run: npx prettier --check .
+
+      - name: Format Check
+        run: npx prettier --check .
         working-directory: storefront
+
+      - name: Security Audit
+        run: npm audit --omit=dev
+        continue-on-error: true
+        working-directory: storefront
+
+      - name: Run Unit Tests & Generate Coverage Report
+        run: npm run test:coverage -- --ci
+        working-directory: storefront
+
+      - name: Code Coverage Quality Gate (Console)
+        run: |
+          SUMMARY="storefront/coverage/coverage-summary.json"
+          if [ -f "$SUMMARY" ]; then
+            node -e "
+              const s = require('./$SUMMARY').total;
+              const overall = Math.min(s.lines.pct, s.functions.pct, s.branches.pct, s.statements.pct);
+              const pct = parseFloat(overall).toFixed(2);
+              process.stdout.write('===========================================\n');
+              process.stdout.write(' STOREFRONT SERVICE COVERAGE: ' + pct + '%\n');
+              process.stdout.write('===========================================\n');
+              if (overall < 70) {
+                process.stdout.write(' FAILED: Coverage below minimum 70%\n');
+                process.exit(1);
+              }
+            "
+          else
+            echo "::error::coverage-summary.json not found. Check Jest configuration!"
+            exit 1
+          fi
+
+      - name: Add Coverage Report to PR
+        if: github.event_name == 'pull_request'
+        uses: AthleticNet/comment-test-coverage@1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: storefront/coverage/coverage-summary.json
+          title: Storefront Service Coverage Report
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storefront-coverage-report
+          path: storefront/coverage/
+
+  security:
+    needs:
+      - detect-changes
+      - test
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download Test & Coverage Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: storefront-coverage-report
+          path: storefront/coverage/
+
       - name: SonarCloud Scan
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: storefront
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
+          args: >
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.organization=trnhduong
+            -Dsonar.projectKey=TrNhDuong_yas_devops 
+            -Dsonar.sources=common,modules,pages,utils
+            -Dsonar.tests=common,modules,utils
+            -Dsonar.test.inclusions=**/*.test.ts,**/*.test.tsx
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.exclusions=coverage/**,node_modules/**,public/**,.next/**
+
+  build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
+    needs:
+      - detect-changes
+      - security
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build and push Docker image to Docker Hub
+        id: docker_build
+        uses: ./.github/workflows/actions/docker-build-push
         with:
           context: ./storefront
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-storefront:latest
+          image-name: yas-storefront
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+      - name: Update image tag in GitOps repository
+        if: github.event_name != 'pull_request'
+        uses: ./.github/workflows/actions/gitops-update-image-tag
+        with:
+          image-name: yas-storefront
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          image-tag: ${{ steps.docker_build.outputs.image_tag }}
+          source-branch: ${{ github.ref_name }}
+          gitops-repository: Duong-Dung/yas-gitops
+          gitops-branch: main
+          gitops-token: ${{ secrets.GITOPS_PAT }}

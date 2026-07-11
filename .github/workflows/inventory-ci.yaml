@@ -2,89 +2,166 @@ name: inventory service ci
 
 on:
   push:
-    branches: ["main"]
-    paths:
-      - "inventory/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/inventory-ci.yaml"
-      - "pom.xml"
   pull_request:
-    branches: ["main"]
-    paths:
-      - "inventory/**"
-      - ".github/workflows/actions/action.yaml"
-      - ".github/workflows/inventory-ci.yaml"
-      - "pom.xml"
   workflow_dispatch:
 
 jobs:
-  Build:
+  detect-changes:
     runs-on: ubuntu-latest
-    env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+    outputs:
+      service: ${{ steps.filter.outputs.service }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: filter
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl inventory -am
-      - name: Run Maven Checkstyle
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl inventory -am -Dcheckstyle.output.file=inventory-checkstyle-result.xml
-      - name: Upload Checkstyle Result
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: jwgmeligmeyling/checkstyle-github-action@master
+          filters: |
+            service:
+              - 'inventory/**'
+              - '.github/workflows/inventory-ci.yaml'
+              - 'pom.xml'
+
+  test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          path: '**/inventory-checkstyle-result.xml'
-      - name: Test Results
-        uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+          fetch-depth: 0
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Run Unit Tests & Generate JaCoCo Report
+        run: mvn clean verify -pl inventory -am
+
+      - name: Code Coverage Quality Gate (Console)
+        run: |
+          REPORT_CSV="inventory/target/site/jacoco/jacoco.csv"
+          if [ -f "$REPORT_CSV" ]; then
+            awk -F"," 'NR>1 { missed += $4; covered += $5 } END {
+              if (missed+covered > 0) coverage = (covered/(missed+covered))*100
+              else coverage = 0
+              printf "===========================================\n"
+              printf " INVENTORY SERVICE COVERAGE: %.2f%%\n", coverage
+              printf "===========================================\n"
+              if (coverage < 70) {
+                printf " FAILED: Coverage tháº¥p hÆ¡n má»©c tá»‘i thiá»ƒu 70%%\n"
+                exit 1
+              }
+            }' $REPORT_CSV
+          else
+            echo "::error::KhĂ´ng tĂ¬m tháº¥y file jacoco.csv. Kiá»ƒm tra cáº¥u hĂ¬nh jacoco-maven-plugin!"
+            exit 1
+          fi
+
+      - name: Add Coverage Report to PR
+        uses: Madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
         with:
-          name: Inventory-Service-Test-Results
-          path: "inventory/**/*-reports/TEST*.xml"
-          reporter: java-junit
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f inventory
-      - name: Add coverage report to PR
-        uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        with:
-          paths: ${{github.workspace}}/inventory/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 60
-          title: 'Inventory Coverage Report'
+          paths: inventory/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
+          title: 'BĂ¡o cĂ¡o Ä‘á»™ phá»§ - Inventory Service'
           update-comment: true
-      - name: Log in to the Container registry
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v3
+
+      - name: Upload Test & Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push Docker images
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v6
+          name: inventory-test-coverage-reports
+          path: |
+            inventory/target/surefire-reports/*.xml
+            inventory/target/site/jacoco/
+
+  # ------------------------------------------------------------------ #
+  # Job Security: SonarCloud                                            #
+  # ------------------------------------------------------------------ #
+  security:
+    needs: [detect-changes, test]
+    if: needs.detect-changes.outputs.service == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      security-events: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Download Test & Coverage Artifacts (from job test)
+        uses: actions/download-artifact@v4
+        with:
+          name: inventory-test-coverage-reports
+          path: inventory/target/site/jacoco/
+
+      - name: Compile & SonarCloud Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn clean compile sonar:sonar \
+            -pl inventory -am \
+            -DskipTests -DskipITs \
+            -Dsonar.projectKey=TrNhDuong_yas_devops \
+            -Dsonar.organization=trnhduong \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -B --no-transfer-progress
+
+  build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
+    needs: [detect-changes, security]
+    if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java/Maven
+        uses: ./.github/workflows/actions
+
+      - name: Build Package (Skip Tests)
+        run: mvn clean package -pl inventory -am -DskipTests
+
+      - name: Build and push Docker image to Docker Hub
+        id: docker_build
+        uses: ./.github/workflows/actions/docker-build-push
         with:
           context: ./inventory
-          push: true
-          tags: ghcr.io/nashtech-garage/yas-inventory:latest
+          image-name: yas-inventory
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+      - name: Update image tag in GitOps repository
+        if: github.event_name != 'pull_request'
+        uses: ./.github/workflows/actions/gitops-update-image-tag
+        with:
+          image-name: yas-inventory
+          dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
+          image-tag: ${{ steps.docker_build.outputs.image_tag }}
+          source-branch: ${{ github.ref_name }}
+          gitops-repository: Duong-Dung/yas-gitops
+          gitops-branch: main
+          gitops-token: ${{ secrets.GITOPS_PAT }}

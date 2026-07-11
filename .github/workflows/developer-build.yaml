@@ -1,0 +1,760 @@
+name: developer_build
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_ref:
+        description: "Branch chứa cấu hình K8S/Helm (sau khi merge nên để main)"
+        required: true
+        default: "fix/k8s-minikube-yas-deploy"
+        type: string
+      tax_branch:
+        description: "Branch cho tax"
+        required: true
+        default: "main"
+        type: string
+      customer_branch:
+        description: "Branch cho customer"
+        required: true
+        default: "main"
+        type: string
+      product_branch:
+        description: "Branch cho product"
+        required: true
+        default: "main"
+        type: string
+      inventory_branch:
+        description: "Branch cho inventory"
+        required: true
+        default: "main"
+        type: string
+      media_branch:
+        description: "Branch cho media"
+        required: true
+        default: "main"
+        type: string
+      location_branch:
+        description: "Branch cho location"
+        required: true
+        default: "main"
+        type: string
+      promotion_branch:
+        description: "Branch cho promotion"
+        required: true
+        default: "main"
+        type: string
+      rating_branch:
+        description: "Branch cho rating"
+        required: true
+        default: "main"
+        type: string
+      cart_branch:
+        description: "Branch cho cart"
+        required: true
+        default: "main"
+        type: string
+      search_branch:
+        description: "Branch cho search"
+        required: true
+        default: "main"
+        type: string
+      webhook_branch:
+        description: "Branch cho webhook"
+        required: true
+        default: "main"
+        type: string
+      order_branch:
+        description: "Branch cho order"
+        required: true
+        default: "main"
+        type: string
+      sampledata_branch:
+        description: "Branch cho sampledata"
+        required: true
+        default: "main"
+        type: string
+      storefront_bff_branch:
+        description: "Branch cho storefront-bff"
+        required: true
+        default: "main"
+        type: string
+      backoffice_bff_branch:
+        description: "Branch cho backoffice-bff"
+        required: true
+        default: "main"
+        type: string
+      storefront_ui_branch:
+        description: "Branch cho storefront-ui"
+        required: true
+        default: "main"
+        type: string
+      backoffice_ui_branch:
+        description: "Branch cho backoffice-ui"
+        required: true
+        default: "main"
+        type: string
+      verify_images:
+        description: "Kiểm tra image tồn tại trên Docker Hub trước khi deploy"
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: yas-developer-environment
+  cancel-in-progress: false
+
+env:
+  NAMESPACE: yas-developer
+  DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME || 'nguyenmanhha' }}
+  STOREFRONT_DOMAIN: storefront.developer.yas.local.com
+  BACKOFFICE_DOMAIN: backoffice.developer.yas.local.com
+  API_DOMAIN: api.developer.yas.local.com
+  IDENTITY_DOMAIN: identity.yas.local.com
+
+jobs:
+  deploy:
+    name: Deploy branch mix to yas-developer
+    runs-on: self-hosted
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout deployment source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.deployment_ref }}
+          fetch-depth: 0
+
+      - name: Validate runner and cluster
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for command in git kubectl helm curl docker; do
+            if ! command -v "${command}" >/dev/null 2>&1; then
+              echo "::error::Missing command on self-hosted runner: ${command}"
+              exit 1
+            fi
+          done
+
+          if [ -z "${DOCKERHUB_USERNAME}" ]; then
+            echo "::error::Set repository variable DOCKERHUB_USERNAME"
+            exit 1
+          fi
+
+          kubectl cluster-info
+          kubectl get node
+          helm version
+
+      - name: Prepare developer namespace and values
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -f k8s/environments/developer/namespace.yaml ]; then
+            kubectl apply -f k8s/environments/developer/namespace.yaml
+          else
+            kubectl create namespace "${NAMESPACE}" \
+              --dry-run=client -o yaml | kubectl apply -f -
+          fi
+
+          # Developer environment is intentionally outside the mesh by default
+          # to reduce resource use and avoid policy interference during branch testing.
+          kubectl label namespace "${NAMESPACE}" istio-injection- 2>/dev/null || true
+          kubectl label namespace "${NAMESPACE}" istio.io/rev- 2>/dev/null || true
+          kubectl label namespace "${NAMESPACE}" \
+            app.kubernetes.io/part-of=yas \
+            yas.environment=developer \
+            --overwrite
+
+          if [ -d k8s/environments/developer ]; then
+            VALUES_DIR="${GITHUB_WORKSPACE}/k8s/environments/developer"
+          else
+            # Temporary compatibility mode before the developer values are merged.
+            VALUES_DIR="${RUNNER_TEMP}/yas-developer-values"
+            rm -rf "${VALUES_DIR}"
+            cp -a k8s/environments/dev "${VALUES_DIR}"
+            grep -RIl 'dev.yas.local.com' "${VALUES_DIR}" | \
+              xargs -r sed -i 's/dev\.yas\.local\.com/developer.yas.local.com/g'
+          fi
+
+          echo "VALUES_DIR=${VALUES_DIR}" >> "${GITHUB_ENV}"
+          echo "Using values from ${VALUES_DIR}"
+
+      - name: Resolve branch image tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
+
+          resolve_tag() {
+            local branch="$1"
+
+            if [ -z "${branch}" ]; then
+              echo "Empty branch" >&2
+              return 1
+            fi
+
+            if [ "${branch}" = "main" ] || [ "${branch}" = "latest" ]; then
+              echo "main"
+              return 0
+            fi
+
+            if ! git show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+              echo "Branch does not exist: ${branch}" >&2
+              return 1
+            fi
+
+            git rev-parse "refs/remotes/origin/${branch}^{commit}"
+          }
+
+          write_tag() {
+            local output_name="$1"
+            local branch="$2"
+            local tag
+            tag="$(resolve_tag "${branch}")"
+            echo "${output_name}=${tag}" >> "${GITHUB_OUTPUT}"
+            printf '%-24s %s\n' "${output_name}" "${tag}"
+          }
+
+          write_tag TAX_TAG "${{ inputs.tax_branch }}"
+          write_tag CUSTOMER_TAG "${{ inputs.customer_branch }}"
+          write_tag PRODUCT_TAG "${{ inputs.product_branch }}"
+          write_tag INVENTORY_TAG "${{ inputs.inventory_branch }}"
+          write_tag MEDIA_TAG "${{ inputs.media_branch }}"
+          write_tag LOCATION_TAG "${{ inputs.location_branch }}"
+          write_tag PROMOTION_TAG "${{ inputs.promotion_branch }}"
+          write_tag RATING_TAG "${{ inputs.rating_branch }}"
+          write_tag CART_TAG "${{ inputs.cart_branch }}"
+          write_tag SEARCH_TAG "${{ inputs.search_branch }}"
+          write_tag WEBHOOK_TAG "${{ inputs.webhook_branch }}"
+          write_tag ORDER_TAG "${{ inputs.order_branch }}"
+          write_tag SAMPLEDATA_TAG "${{ inputs.sampledata_branch }}"
+          write_tag STOREFRONT_BFF_TAG "${{ inputs.storefront_bff_branch }}"
+          write_tag BACKOFFICE_BFF_TAG "${{ inputs.backoffice_bff_branch }}"
+          write_tag STOREFRONT_UI_TAG "${{ inputs.storefront_ui_branch }}"
+          write_tag BACKOFFICE_UI_TAG "${{ inputs.backoffice_ui_branch }}"
+
+      - name: Verify selected images
+        if: ${{ inputs.verify_images }}
+        shell: bash
+        env:
+          TAX_TAG: ${{ steps.tags.outputs.TAX_TAG }}
+          CUSTOMER_TAG: ${{ steps.tags.outputs.CUSTOMER_TAG }}
+          PRODUCT_TAG: ${{ steps.tags.outputs.PRODUCT_TAG }}
+          INVENTORY_TAG: ${{ steps.tags.outputs.INVENTORY_TAG }}
+          MEDIA_TAG: ${{ steps.tags.outputs.MEDIA_TAG }}
+          LOCATION_TAG: ${{ steps.tags.outputs.LOCATION_TAG }}
+          PROMOTION_TAG: ${{ steps.tags.outputs.PROMOTION_TAG }}
+          RATING_TAG: ${{ steps.tags.outputs.RATING_TAG }}
+          CART_TAG: ${{ steps.tags.outputs.CART_TAG }}
+          SEARCH_TAG: ${{ steps.tags.outputs.SEARCH_TAG }}
+          WEBHOOK_TAG: ${{ steps.tags.outputs.WEBHOOK_TAG }}
+          ORDER_TAG: ${{ steps.tags.outputs.ORDER_TAG }}
+          SAMPLEDATA_TAG: ${{ steps.tags.outputs.SAMPLEDATA_TAG }}
+          STOREFRONT_BFF_TAG: ${{ steps.tags.outputs.STOREFRONT_BFF_TAG }}
+          BACKOFFICE_BFF_TAG: ${{ steps.tags.outputs.BACKOFFICE_BFF_TAG }}
+          STOREFRONT_UI_TAG: ${{ steps.tags.outputs.STOREFRONT_UI_TAG }}
+          BACKOFFICE_UI_TAG: ${{ steps.tags.outputs.BACKOFFICE_UI_TAG }}
+        run: |
+          set -euo pipefail
+
+          verify_image() {
+            local repository="$1"
+            local tag="$2"
+            local image="${DOCKERHUB_USERNAME}/${repository}:${tag}"
+            local attempt
+
+            echo "Checking ${image}"
+
+            for attempt in 1 2 3; do
+              if docker manifest inspect "${image}"                 >/tmp/yas-manifest.json                 2>/tmp/yas-manifest-error.log; then
+                echo "FOUND: ${image}"
+                return 0
+              fi
+
+              echo "Attempt ${attempt}/3 failed for ${image}:"
+              cat /tmp/yas-manifest-error.log || true
+
+              if [ "${attempt}" -lt 3 ]; then
+                sleep 10
+              fi
+            done
+
+            echo "::error::Image not found or not readable after retries: ${image}"
+            return 1
+          }
+
+          verify_image yas-tax "${TAX_TAG}"
+          verify_image yas-customer "${CUSTOMER_TAG}"
+          verify_image yas-product "${PRODUCT_TAG}"
+          verify_image yas-inventory "${INVENTORY_TAG}"
+          verify_image yas-media "${MEDIA_TAG}"
+          verify_image yas-location "${LOCATION_TAG}"
+          verify_image yas-promotion "${PROMOTION_TAG}"
+          verify_image yas-rating "${RATING_TAG}"
+          verify_image yas-cart "${CART_TAG}"
+          verify_image yas-search "${SEARCH_TAG}"
+          verify_image yas-webhook "${WEBHOOK_TAG}"
+          verify_image yas-order "${ORDER_TAG}"
+          verify_image yas-sampledata "${SAMPLEDATA_TAG}"
+          verify_image yas-storefront-bff "${STOREFRONT_BFF_TAG}"
+          verify_image yas-backoffice-bff "${BACKOFFICE_BFF_TAG}"
+          verify_image yas-storefront "${STOREFRONT_UI_TAG}"
+          verify_image yas-backoffice "${BACKOFFICE_UI_TAG}"
+
+      - name: Check shared infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          check_service() {
+            local namespace="$1"
+            local service="$2"
+            if kubectl get service "${service}" -n "${namespace}" >/dev/null 2>&1; then
+              echo "OK: ${service}.${namespace}"
+            else
+              echo "::warning::Missing shared service ${service}.${namespace}"
+            fi
+          }
+
+          check_service postgres postgresql
+          check_service kafka kafka-cluster-kafka-brokers
+          check_service redis redis-master
+          check_service elasticsearch elasticsearch-es-http
+
+      - name: Prepare optional payment placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Payment is intentionally not deployed in yas-developer.
+          # Keep a selector-less Service so the internal nginx upstream
+          # can resolve the hostname "payment".
+          if helm status payment -n "${NAMESPACE}" >/dev/null 2>&1; then
+            helm uninstall payment \
+              -n "${NAMESPACE}" \
+              --wait \
+              --timeout 5m
+          fi
+
+          cat <<'EOF' | kubectl apply -n "${NAMESPACE}" -f -
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: payment
+            labels:
+              app.kubernetes.io/name: payment
+              app.kubernetes.io/part-of: yas
+              yas.optional-placeholder: "true"
+          spec:
+            ports:
+              - name: http
+                protocol: TCP
+                port: 80
+                targetPort: 80
+          EOF
+
+          kubectl get service payment -n "${NAMESPACE}" -o wide
+
+      - name: Deploy configuration layer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          helm repo add stakater https://stakater.github.io/stakater-charts --force-update
+          helm repo update
+          helm dependency build k8s/charts/yas-configuration
+
+          # Do not use --wait here. The internal nginx references backend Service
+          # names that are created in the following deployment waves.
+          helm upgrade --install yas-configuration k8s/charts/yas-configuration \
+            --namespace "${NAMESPACE}" \
+            --create-namespace \
+            --values "${VALUES_DIR}/yas-configuration-values.yaml" \
+            --history-max 3 \
+            --timeout 10m
+
+      - name: Deploy backend services in dependency waves
+        shell: bash
+        env:
+          TAX_TAG: ${{ steps.tags.outputs.TAX_TAG }}
+          CUSTOMER_TAG: ${{ steps.tags.outputs.CUSTOMER_TAG }}
+          PRODUCT_TAG: ${{ steps.tags.outputs.PRODUCT_TAG }}
+          INVENTORY_TAG: ${{ steps.tags.outputs.INVENTORY_TAG }}
+          MEDIA_TAG: ${{ steps.tags.outputs.MEDIA_TAG }}
+          LOCATION_TAG: ${{ steps.tags.outputs.LOCATION_TAG }}
+          PROMOTION_TAG: ${{ steps.tags.outputs.PROMOTION_TAG }}
+          RATING_TAG: ${{ steps.tags.outputs.RATING_TAG }}
+          CART_TAG: ${{ steps.tags.outputs.CART_TAG }}
+          SEARCH_TAG: ${{ steps.tags.outputs.SEARCH_TAG }}
+          WEBHOOK_TAG: ${{ steps.tags.outputs.WEBHOOK_TAG }}
+          ORDER_TAG: ${{ steps.tags.outputs.ORDER_TAG }}
+        run: |
+          set -euo pipefail
+
+          deploy_backend() {
+            local service="$1"
+            local tag="$2"
+            local chart="k8s/charts/${service}"
+            local image="${DOCKERHUB_USERNAME}/yas-${service}"
+
+            if [ ! -d "${chart}" ]; then
+              echo "::error::Required chart not found: ${chart}"
+              exit 1
+            fi
+
+            helm dependency build "${chart}"
+            helm upgrade --install "${service}" "${chart}" \
+              --namespace "${NAMESPACE}" \
+              --create-namespace \
+              --set-string "backend.image.repository=${image}" \
+              --set-string "backend.image.tag=${tag}" \
+              --set-string "image.repository=${image}" \
+              --set-string "image.tag=${tag}" \
+              --history-max 3 \
+              --timeout 10m
+          }
+
+          wait_release() {
+            local release="$1"
+            local deployments
+            deployments="$(kubectl get deployment -n "${NAMESPACE}" \
+              -l "app.kubernetes.io/instance=${release}" \
+              -o name)"
+
+            if [ -z "${deployments}" ]; then
+              echo "::error::No Deployment found for Helm release ${release}"
+              exit 1
+            fi
+
+            while IFS= read -r deployment; do
+              [ -n "${deployment}" ] || continue
+              kubectl rollout status "${deployment}" \
+                -n "${NAMESPACE}" \
+                --timeout=600s
+            done <<< "${deployments}"
+          }
+
+          echo "===== WAVE 1: CORE SERVICES ====="
+          deploy_backend tax "${TAX_TAG}"
+          deploy_backend customer "${CUSTOMER_TAG}"
+          deploy_backend product "${PRODUCT_TAG}"
+          deploy_backend inventory "${INVENTORY_TAG}"
+          deploy_backend media "${MEDIA_TAG}"
+          deploy_backend location "${LOCATION_TAG}"
+
+          for service in tax customer product inventory media location; do
+            wait_release "${service}"
+          done
+
+          echo "===== WAVE 2: DEPENDENT SERVICES ====="
+          deploy_backend promotion "${PROMOTION_TAG}"
+          deploy_backend rating "${RATING_TAG}"
+          deploy_backend cart "${CART_TAG}"
+          deploy_backend search "${SEARCH_TAG}"
+          deploy_backend webhook "${WEBHOOK_TAG}"
+
+          for service in promotion rating cart search webhook; do
+            wait_release "${service}"
+          done
+
+          echo "===== WAVE 3: ORDER ====="
+          deploy_backend order "${ORDER_TAG}"
+          wait_release order
+
+      - name: Deploy sample data
+        shell: bash
+        env:
+          SAMPLEDATA_TAG: ${{ steps.tags.outputs.SAMPLEDATA_TAG }}
+        run: |
+          set -euo pipefail
+
+          chart="k8s/charts/sampledata"
+          helm dependency build "${chart}"
+          helm upgrade --install sampledata "${chart}" \
+            --namespace "${NAMESPACE}" \
+            --create-namespace \
+            --values "${VALUES_DIR}/sampledata-values.yaml" \
+            --set-string "backend.image.repository=${DOCKERHUB_USERNAME}/yas-sampledata" \
+            --set-string "backend.image.tag=${SAMPLEDATA_TAG}" \
+            --history-max 3 \
+            --timeout 10m
+
+          kubectl rollout status deployment \
+            -n "${NAMESPACE}" \
+            -l app.kubernetes.io/instance=sampledata \
+            --timeout=600s
+
+      - name: Wait for Keycloak OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kubectl delete pod oidc-preflight             -n "${NAMESPACE}"             --ignore-not-found
+
+          kubectl run oidc-preflight             -n "${NAMESPACE}"             --restart=Never             --image=curlimages/curl:8.10.1             --command -- sh -c '
+              URL="http://identity.yas.local.com/realms/Yas/.well-known/openid-configuration"
+
+              for attempt in $(seq 1 60); do
+                status="$(curl                   --silent                   --output /tmp/oidc.json                   --write-out "%{http_code}"                   --connect-timeout 5                   --max-time 15                   "${URL}" || true)"
+
+                if [ "${status}" = "200" ]; then
+                  echo "Keycloak OIDC is ready"
+                  exit 0
+                fi
+
+                echo "Attempt ${attempt}/60: HTTP ${status:-no-response}"
+                sleep 5
+              done
+
+              echo "Keycloak OIDC did not become ready"
+              exit 1
+            '
+
+          if ! kubectl wait             --for=jsonpath='{.status.phase}'=Succeeded             pod/oidc-preflight             -n "${NAMESPACE}"             --timeout=360s; then
+            kubectl logs oidc-preflight -n "${NAMESPACE}" || true
+            kubectl describe pod oidc-preflight -n "${NAMESPACE}" || true
+            exit 1
+          fi
+
+          kubectl logs oidc-preflight -n "${NAMESPACE}"
+          kubectl delete pod oidc-preflight -n "${NAMESPACE}"
+
+      - name: Deploy BFF layer
+        shell: bash
+        env:
+          STOREFRONT_BFF_TAG: ${{ steps.tags.outputs.STOREFRONT_BFF_TAG }}
+          BACKOFFICE_BFF_TAG: ${{ steps.tags.outputs.BACKOFFICE_BFF_TAG }}
+        run: |
+          set -euo pipefail
+
+          deploy_bff() {
+            local release="$1"
+            local tag="$2"
+            local values_file="$3"
+            local chart="k8s/charts/${release}"
+
+            helm dependency build "${chart}"
+            helm upgrade --install "${release}" "${chart}" \
+              --namespace "${NAMESPACE}" \
+              --create-namespace \
+              --values "${values_file}" \
+              --set-string "backend.image.repository=${DOCKERHUB_USERNAME}/yas-${release}" \
+              --set-string "backend.image.tag=${tag}" \
+              --history-max 3 \
+              --timeout 10m
+          }
+
+          deploy_bff storefront-bff "${STOREFRONT_BFF_TAG}" \
+            "${VALUES_DIR}/storefront-bff-values.yaml"
+          deploy_bff backoffice-bff "${BACKOFFICE_BFF_TAG}" \
+            "${VALUES_DIR}/backoffice-bff-values.yaml"
+
+          for release in storefront-bff backoffice-bff; do
+            deployment="$(
+              kubectl get deployment                 -n "${NAMESPACE}"                 -l "app.kubernetes.io/instance=${release}"                 -o jsonpath='{.items[0].metadata.name}'
+            )"
+
+            if [ -z "${deployment}" ]; then
+              echo "::error::No Deployment found for ${release}"
+              exit 1
+            fi
+
+            kubectl patch deployment "${deployment}"               -n "${NAMESPACE}"               --type merge               -p '{"spec":{"progressDeadlineSeconds":1200}}'
+
+            kubectl rollout status deployment/"${deployment}"               -n "${NAMESPACE}"               --timeout=1200s
+          done
+
+      - name: Deploy UI and Swagger layer
+        shell: bash
+        env:
+          STOREFRONT_UI_TAG: ${{ steps.tags.outputs.STOREFRONT_UI_TAG }}
+          BACKOFFICE_UI_TAG: ${{ steps.tags.outputs.BACKOFFICE_UI_TAG }}
+        run: |
+          set -euo pipefail
+
+          deploy_ui() {
+            local release="$1"
+            local repository="$2"
+            local tag="$3"
+            local values_file="$4"
+            local chart="k8s/charts/${release}"
+
+            helm dependency build "${chart}"
+            helm upgrade --install "${release}" "${chart}" \
+              --namespace "${NAMESPACE}" \
+              --create-namespace \
+              --values "${values_file}" \
+              --set-string "ui.image.repository=${DOCKERHUB_USERNAME}/${repository}" \
+              --set-string "ui.image.tag=${tag}" \
+              --history-max 3 \
+              --timeout 10m
+          }
+
+          deploy_ui storefront-ui yas-storefront "${STOREFRONT_UI_TAG}" \
+            "${VALUES_DIR}/storefront-ui-values.yaml"
+          deploy_ui backoffice-ui yas-backoffice "${BACKOFFICE_UI_TAG}" \
+            "${VALUES_DIR}/backoffice-ui-values.yaml"
+
+          helm upgrade --install swagger-ui k8s/charts/swagger-ui \
+            --namespace "${NAMESPACE}" \
+            --create-namespace \
+            --values "${VALUES_DIR}/swagger-ui-values.yaml" \
+            --history-max 3 \
+            --timeout 10m
+
+          for release in storefront-ui backoffice-ui swagger-ui; do
+            kubectl rollout status deployment \
+              -n "${NAMESPACE}" \
+              -l "app.kubernetes.io/instance=${release}" \
+              --timeout=600s
+          done
+
+          # The internal nginx from yas-configuration can become Ready now that
+          # the backend Services referenced by its configuration exist.
+          kubectl rollout status deployment/nginx \
+            -n "${NAMESPACE}" \
+            --timeout=600s
+
+      - name: Expose ingress controller through NodePort
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          INGRESS_NAMESPACE="ingress-nginx"
+          INGRESS_SERVICE="ingress-nginx-controller"
+
+          if ! kubectl get service "${INGRESS_SERVICE}" \
+            -n "${INGRESS_NAMESPACE}" >/dev/null 2>&1; then
+            if command -v minikube >/dev/null 2>&1; then
+              minikube addons enable ingress
+            fi
+          fi
+
+          kubectl wait --for=condition=Available deployment/ingress-nginx-controller \
+            -n "${INGRESS_NAMESPACE}" \
+            --timeout=600s
+
+          SERVICE_TYPE="$(kubectl get service "${INGRESS_SERVICE}" \
+            -n "${INGRESS_NAMESPACE}" \
+            -o jsonpath='{.spec.type}')"
+
+          if [ "${SERVICE_TYPE}" != "NodePort" ]; then
+            kubectl patch service "${INGRESS_SERVICE}" \
+              -n "${INGRESS_NAMESPACE}" \
+              --type merge \
+              -p '{"spec":{"type":"NodePort"}}'
+          fi
+
+          NODE_PORT="$(kubectl get service "${INGRESS_SERVICE}" \
+            -n "${INGRESS_NAMESPACE}" \
+            -o jsonpath='{.spec.ports[?(@.name=="http")].nodePort}')"
+
+          if [ -z "${NODE_PORT}" ]; then
+            NODE_PORT="$(kubectl get service "${INGRESS_SERVICE}" \
+              -n "${INGRESS_NAMESPACE}" \
+              -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}')"
+          fi
+
+          if [ -z "${NODE_PORT}" ]; then
+            echo "::error::Could not determine HTTP NodePort"
+            exit 1
+          fi
+
+          if command -v minikube >/dev/null 2>&1; then
+            NODE_IP="$(minikube ip)"
+          else
+            NODE_IP="$(kubectl get node \
+              -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')"
+          fi
+
+          echo "NODE_IP=${NODE_IP}" >> "${GITHUB_ENV}"
+          echo "NODE_PORT=${NODE_PORT}" >> "${GITHUB_ENV}"
+
+      - name: Test domain and port
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          wait_http() {
+            local domain="$1"
+            local path="$2"
+            local attempt status
+
+            for attempt in $(seq 1 30); do
+              status="$(curl --silent --show-error \
+                --output /tmp/yas-response \
+                --write-out '%{http_code}' \
+                --connect-timeout 5 \
+                --max-time 20 \
+                -H "Host: ${domain}" \
+                "http://${NODE_IP}:${NODE_PORT}${path}" || true)"
+
+              if [[ "${status}" =~ ^[23][0-9][0-9]$ ]]; then
+                echo "PASS ${domain}${path}: HTTP ${status}"
+                return 0
+              fi
+
+              echo "Attempt ${attempt}/30: ${domain}${path} returned ${status:-no-response}"
+              sleep 5
+            done
+
+            echo "::error::Domain/port test failed: ${domain}${path}"
+            cat /tmp/yas-response 2>/dev/null || true
+            return 1
+          }
+
+          wait_http "${STOREFRONT_DOMAIN}" "/"
+          wait_http "${BACKOFFICE_DOMAIN}" "/"
+          wait_http "${API_DOMAIN}" "/swagger-ui/index.html"
+
+      - name: Publish developer access information
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "## YAS developer environment"
+            echo
+            echo "- Namespace: \`${NAMESPACE}\`"
+            echo "- Node IP: \`${NODE_IP}\`"
+            echo "- HTTP NodePort: \`${NODE_PORT}\`"
+            echo "- Storefront: \`http://${STOREFRONT_DOMAIN}:${NODE_PORT}\`"
+            echo "- Backoffice: \`http://${BACKOFFICE_DOMAIN}:${NODE_PORT}\`"
+            echo "- API/Swagger: \`http://${API_DOMAIN}:${NODE_PORT}\`"
+            echo
+            echo "### hosts entries (when the machine can reach Minikube IP)"
+            echo '```text'
+            echo "${NODE_IP} ${STOREFRONT_DOMAIN}"
+            echo "${NODE_IP} ${BACKOFFICE_DOMAIN}"
+            echo "${NODE_IP} ${API_DOMAIN}"
+            echo "${NODE_IP} ${IDENTITY_DOMAIN}"
+            echo '```'
+            echo
+            echo "### Azure VM browser access"
+            echo
+            echo "On the VM:"
+            echo '```bash'
+            echo "kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 18080:80 --address 127.0.0.1"
+            echo '```'
+            echo
+            echo "On the local machine:"
+            echo '```bash'
+            echo "ssh -N -L 127.0.0.1:80:127.0.0.1:18080 <user>@<vm-public-ip>"
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          echo "Storefront: http://${STOREFRONT_DOMAIN}:${NODE_PORT}"
+          echo "Backoffice: http://${BACKOFFICE_DOMAIN}:${NODE_PORT}"
+          echo "Swagger:    http://${API_DOMAIN}:${NODE_PORT}/swagger-ui/index.html"
+
+      - name: Show deployed resources and images
+        if: always()
+        shell: bash
+        run: |
+          kubectl get ingress,service,deployment,pod -n "${NAMESPACE}" -o wide || true
+          echo
+          kubectl get pod -n "${NAMESPACE}" \
+            -o jsonpath='{range .items[*]}{.metadata.name}{" => "}{.spec.containers[*].image}{"\n"}{end}' || true

@@ -1,0 +1,98 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      ENABLE_SNYK_SCAN:
+        description: 'Enable Snyk Security Scan'
+        required: false
+        default: 'true'
+        type: boolean
+      SNYK_SEVERITY:
+        description: 'Snyk severity threshold (low, medium, high, critical)'
+        required: false
+        default: 'critical'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+      SNYK_FAIL_ON_ISSUES:
+        description: 'Fail pipeline if Snyk finds issues'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  gitleaks:
+    name: Gitleaks Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Official Action
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: gitleaks.toml
+
+  snyk:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk scan for entire project
+        run: |
+          snyk test \
+            --file=pom.xml \
+            --severity-threshold=${{ inputs.SNYK_SEVERITY || 'high' }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          JAVA_OPTS: "-Xmx1g -Xms512m"
+          MAVEN_OPTS: "-Xmx1g -Xms512m"
+        continue-on-error: ${{ github.event_name == 'workflow_dispatch' && inputs.SNYK_FAIL_ON_ISSUES == false }}
+
+      - name: Generate Snyk JSON report
+        if: always()
+        run: |
+          snyk test \
+            --file=pom.xml \
+            --severity-threshold=${{ inputs.SNYK_SEVERITY || 'critical' }} \
+            --json > snyk-report.json || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          JAVA_OPTS: "-Xmx1g -Xms512m"
+          MAVEN_OPTS: "-Xmx1g -Xms512m"
+
+      - name: Upload Snyk report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-report
+          path: snyk-report.json
+          retention-days: 30
