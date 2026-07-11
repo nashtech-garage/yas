@@ -369,7 +369,7 @@ pipeline {
                         imageTag = 'latest'
                     } else {
                         // Mặc định fallback về tag dev cho các nhánh khác (dev, develop, feat/*, v.v.)
-                        imageTag = "dev-${commitId}"
+                        imageTag = "${commitId}"
                     }
                     echo "Target image tag: ${imageTag}"
 
