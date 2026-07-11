@@ -109,6 +109,7 @@ env:
   STOREFRONT_DOMAIN: storefront.developer.yas.local.com
   BACKOFFICE_DOMAIN: backoffice.developer.yas.local.com
   API_DOMAIN: api.developer.yas.local.com
+  IDENTITY_DOMAIN: identity.yas.local.com
 
 jobs:
   deploy:
@@ -263,11 +264,26 @@ jobs:
             local repository="$1"
             local tag="$2"
             local image="${DOCKERHUB_USERNAME}/${repository}:${tag}"
+            local attempt
+
             echo "Checking ${image}"
-            if ! docker manifest inspect "${image}" >/dev/null 2>&1; then
-              echo "::error::Image not found or not readable: ${image}"
-              exit 1
-            fi
+
+            for attempt in 1 2 3; do
+              if docker manifest inspect "${image}"                 >/tmp/yas-manifest.json                 2>/tmp/yas-manifest-error.log; then
+                echo "FOUND: ${image}"
+                return 0
+              fi
+
+              echo "Attempt ${attempt}/3 failed for ${image}:"
+              cat /tmp/yas-manifest-error.log || true
+
+              if [ "${attempt}" -lt 3 ]; then
+                sleep 10
+              fi
+            done
+
+            echo "::error::Image not found or not readable after retries: ${image}"
+            return 1
           }
 
           verify_image yas-tax "${TAX_TAG}"
@@ -317,7 +333,10 @@ jobs:
           # Keep a selector-less Service so the internal nginx upstream
           # can resolve the hostname "payment".
           if helm status payment -n "${NAMESPACE}" >/dev/null 2>&1; then
-            helm uninstall payment               -n "${NAMESPACE}"               --wait               --timeout 5m
+            helm uninstall payment \
+              -n "${NAMESPACE}" \
+              --wait \
+              --timeout 5m
           fi
 
           cat <<'EOF' | kubectl apply -n "${NAMESPACE}" -f -
@@ -468,6 +487,41 @@ jobs:
             -l app.kubernetes.io/instance=sampledata \
             --timeout=600s
 
+      - name: Wait for Keycloak OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kubectl delete pod oidc-preflight             -n "${NAMESPACE}"             --ignore-not-found
+
+          kubectl run oidc-preflight             -n "${NAMESPACE}"             --restart=Never             --image=curlimages/curl:8.10.1             --command -- sh -c '
+              URL="http://identity.yas.local.com/realms/Yas/.well-known/openid-configuration"
+
+              for attempt in $(seq 1 60); do
+                status="$(curl                   --silent                   --output /tmp/oidc.json                   --write-out "%{http_code}"                   --connect-timeout 5                   --max-time 15                   "${URL}" || true)"
+
+                if [ "${status}" = "200" ]; then
+                  echo "Keycloak OIDC is ready"
+                  exit 0
+                fi
+
+                echo "Attempt ${attempt}/60: HTTP ${status:-no-response}"
+                sleep 5
+              done
+
+              echo "Keycloak OIDC did not become ready"
+              exit 1
+            '
+
+          if ! kubectl wait             --for=jsonpath='{.status.phase}'=Succeeded             pod/oidc-preflight             -n "${NAMESPACE}"             --timeout=360s; then
+            kubectl logs oidc-preflight -n "${NAMESPACE}" || true
+            kubectl describe pod oidc-preflight -n "${NAMESPACE}" || true
+            exit 1
+          fi
+
+          kubectl logs oidc-preflight -n "${NAMESPACE}"
+          kubectl delete pod oidc-preflight -n "${NAMESPACE}"
+
       - name: Deploy BFF layer
         shell: bash
         env:
@@ -499,10 +553,18 @@ jobs:
             "${VALUES_DIR}/backoffice-bff-values.yaml"
 
           for release in storefront-bff backoffice-bff; do
-            kubectl rollout status deployment \
-              -n "${NAMESPACE}" \
-              -l "app.kubernetes.io/instance=${release}" \
-              --timeout=600s
+            deployment="$(
+              kubectl get deployment                 -n "${NAMESPACE}"                 -l "app.kubernetes.io/instance=${release}"                 -o jsonpath='{.items[0].metadata.name}'
+            )"
+
+            if [ -z "${deployment}" ]; then
+              echo "::error::No Deployment found for ${release}"
+              exit 1
+            fi
+
+            kubectl patch deployment "${deployment}"               -n "${NAMESPACE}"               --type merge               -p '{"spec":{"progressDeadlineSeconds":1200}}'
+
+            kubectl rollout status deployment/"${deployment}"               -n "${NAMESPACE}"               --timeout=1200s
           done
 
       - name: Deploy UI and Swagger layer
@@ -645,7 +707,8 @@ jobs:
           }
 
           wait_http "${STOREFRONT_DOMAIN}" "/"
-          wait_http "${API_DOMAIN}" "/tax/actuator/health"
+          wait_http "${BACKOFFICE_DOMAIN}" "/"
+          wait_http "${API_DOMAIN}" "/swagger-ui/index.html"
 
       - name: Publish developer access information
         shell: bash
@@ -667,16 +730,25 @@ jobs:
             echo "${NODE_IP} ${STOREFRONT_DOMAIN}"
             echo "${NODE_IP} ${BACKOFFICE_DOMAIN}"
             echo "${NODE_IP} ${API_DOMAIN}"
+            echo "${NODE_IP} ${IDENTITY_DOMAIN}"
             echo '```'
             echo
-            echo "For an Azure VM, tunnel the NodePort and map these domains to 127.0.0.1."
+            echo "### Azure VM browser access"
+            echo
+            echo "On the VM:"
             echo '```bash'
-            echo "ssh -L ${NODE_PORT}:${NODE_IP}:${NODE_PORT} <user>@<vm-public-ip>"
+            echo "kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 18080:80 --address 127.0.0.1"
+            echo '```'
+            echo
+            echo "On the local machine:"
+            echo '```bash'
+            echo "ssh -N -L 127.0.0.1:80:127.0.0.1:18080 <user>@<vm-public-ip>"
             echo '```'
           } >> "${GITHUB_STEP_SUMMARY}"
 
           echo "Storefront: http://${STOREFRONT_DOMAIN}:${NODE_PORT}"
-          echo "API:        http://${API_DOMAIN}:${NODE_PORT}"
+          echo "Backoffice: http://${BACKOFFICE_DOMAIN}:${NODE_PORT}"
+          echo "Swagger:    http://${API_DOMAIN}:${NODE_PORT}/swagger-ui/index.html"
 
       - name: Show deployed resources and images
         if: always()
