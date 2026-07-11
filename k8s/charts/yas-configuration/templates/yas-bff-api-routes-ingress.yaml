@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: nginx
+    - host: {{ required "hosts.api is required" .Values.hosts.api | quote }}
       http:
         paths:
           - path: /api/product(/|$)(.*)
