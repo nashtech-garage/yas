@@ -1,4 +1,5 @@
 elasticsearch:
+  version: "9.2.8"
   replicas: 1
 kibana:
   ingress:

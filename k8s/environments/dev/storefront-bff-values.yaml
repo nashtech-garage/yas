@@ -1,0 +1,8 @@
+backend:
+  image:
+    repository: nguyenmanhha/yas-storefront-bff
+    tag: main
+
+  ingress:
+    enabled: true
+    host: storefront.dev.yas.local.com

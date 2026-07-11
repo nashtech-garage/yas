@@ -1,0 +1,8 @@
+ui:
+  image:
+    repository: nguyenmanhha/yas-storefront
+    tag: main
+
+  extraEnvs:
+    - name: API_BASE_PATH
+      value: http://storefront.dev.yas.local.com/api

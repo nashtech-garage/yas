@@ -1,0 +1,4 @@
+backend:
+  image:
+    repository: nguyenmanhha/yas-sampledata
+    tag: main
