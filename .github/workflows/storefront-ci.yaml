@@ -1,4 +1,4 @@
-﻿name: storefront service ci
+name: storefront service ci
 
 on:
   push:
@@ -147,6 +147,9 @@ jobs:
             -Dsonar.exclusions=coverage/**,node_modules/**,public/**,.next/**
 
   build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
     needs:
       - detect-changes
       - security

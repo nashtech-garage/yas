@@ -1,4 +1,4 @@
-﻿name: sampledata service ci
+name: sampledata service ci
 
 on:
   push:

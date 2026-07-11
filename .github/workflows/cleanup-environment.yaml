@@ -1,243 +1,55 @@
-name: cleanup_environment
+name: cleanup_developer_environment
 
 on:
   workflow_dispatch:
     inputs:
-      service:
-        description: "Service cần cleanup. Chọn all để cleanup toàn bộ service."
+      confirmation:
+        description: "Nhập DELETE để xóa toàn bộ namespace yas-developer"
         required: true
-        type: choice
-        default: all
-        options:
-          - all
-          - tax
-          - customer
-          - product
-          - cart
-          - inventory
-          - order
-          - payment
-          - payment-paypal
-          - promotion
-          - rating
-          - recommendation
-          - search
-          - media
-          - location
-          - webhook
-          - backoffice-bff
-          - storefront-bff
-      cleanup_action:
-        description: "reset-to-main: đưa service về tag main; uninstall: gỡ Helm release"
-        required: true
-        type: choice
-        default: reset-to-main
-        options:
-          - reset-to-main
-          - uninstall
-      namespace:
-        description: "Namespace cần cleanup"
-        required: true
-        default: yas-dev
-      target_tag:
-        description: "Tag baseline khi cleanup_action = reset-to-main"
-        required: true
-        default: main
-      delay_minutes:
-        description: "Số phút chờ trước khi cleanup. Dùng để auto cleanup sau thời gian test."
-        required: true
-        default: "0"
+        type: string
 
-  workflow_call:
-    inputs:
-      service:
-        required: true
-        type: string
-        default: all
-      cleanup_action:
-        required: false
-        type: string
-        default: reset-to-main
-      namespace:
-        required: false
-        type: string
-        default: yas-dev
-      target_tag:
-        required: false
-        type: string
-        default: main
-      delay_minutes:
-        required: false
-        type: string
-        default: "0"
-
-permissions:
-  contents: read
+concurrency:
+  group: yas-developer-environment
+  cancel-in-progress: false
 
 jobs:
   cleanup:
-    name: Cleanup developer environment
+    name: Delete yas-developer
     runs-on: self-hosted
-
-    env:
-      SERVICES: >-
-        tax customer product cart inventory order payment payment-paypal promotion rating
-        recommendation search media location webhook backoffice-bff storefront-bff
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 1
-
-      - name: Resolve cleanup inputs
-        id: vars
+      - name: Validate confirmation
         shell: bash
         run: |
           set -euo pipefail
-
-          SERVICE="${{ inputs.service }}"
-          ACTION="${{ inputs.cleanup_action }}"
-          NAMESPACE="${{ inputs.namespace }}"
-          TARGET_TAG="${{ inputs.target_tag }}"
-          DELAY_MINUTES="${{ inputs.delay_minutes }}"
-
-          if [ -z "$SERVICE" ]; then
-            SERVICE="all"
-          fi
-
-          if [ "$SERVICE" = "all" ]; then
-            SERVICE_LIST="$SERVICES"
-          else
-            SERVICE_LIST="$SERVICE"
-          fi
-
-          case "$ACTION" in
-            reset-to-main|uninstall) ;;
-            *) echo "Unsupported cleanup_action: $ACTION" >&2; exit 1 ;;
-          esac
-
-          if ! [[ "$DELAY_MINUTES" =~ ^[0-9]+$ ]]; then
-            echo "delay_minutes must be a non-negative integer" >&2
+          if [ "${{ inputs.confirmation }}" != "DELETE" ]; then
+            echo "::error::Confirmation must be DELETE"
             exit 1
           fi
 
-          echo "service_list=$SERVICE_LIST" >> "$GITHUB_OUTPUT"
-          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
-          echo "namespace=$NAMESPACE" >> "$GITHUB_OUTPUT"
-          echo "target_tag=$TARGET_TAG" >> "$GITHUB_OUTPUT"
-          echo "delay_minutes=$DELAY_MINUTES" >> "$GITHUB_OUTPUT"
-
-          echo "Cleanup action: $ACTION"
-          echo "Namespace: $NAMESPACE"
-          echo "Target tag: $TARGET_TAG"
-          echo "Services: $SERVICE_LIST"
-          echo "Delay minutes: $DELAY_MINUTES"
-
-      - name: Wait before cleanup
-        if: ${{ steps.vars.outputs.delay_minutes != '0' }}
+      - name: Show resources before cleanup
         shell: bash
         run: |
           set -euo pipefail
-          echo "Waiting ${{ steps.vars.outputs.delay_minutes }} minute(s) before cleanup..."
-          sleep $(( ${{ steps.vars.outputs.delay_minutes }} * 60 ))
+          kubectl get namespace yas-developer
+          helm list -n yas-developer || true
+          kubectl get deploy,pod,svc,ingress -n yas-developer || true
 
-      - name: Cleanup Helm releases
+      - name: Delete developer environment
         shell: bash
         run: |
           set -euo pipefail
+          kubectl delete namespace yas-developer \
+            --wait=true \
+            --timeout=600s
 
-          ACTION="${{ steps.vars.outputs.action }}"
-          NAMESPACE="${{ steps.vars.outputs.namespace }}"
-          TARGET_TAG="${{ steps.vars.outputs.target_tag }}"
-          SERVICE_LIST="${{ steps.vars.outputs.service_list }}"
-
-          kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-
-          for svc in $SERVICE_LIST; do
-            chart="./k8s/charts/$svc"
-
-            echo "----------------------------------------"
-            echo "Service: $svc"
-            echo "Action: $ACTION"
-
-            if [ "$ACTION" = "uninstall" ]; then
-              if helm status "$svc" --namespace "$NAMESPACE" >/dev/null 2>&1; then
-                helm uninstall "$svc" --namespace "$NAMESPACE"
-                echo "Uninstalled Helm release: $svc"
-              else
-                echo "Helm release $svc does not exist in namespace $NAMESPACE. Skip."
-              fi
-              continue
-            fi
-
-            if [ ! -d "$chart" ]; then
-              echo "::warning title=Missing Helm chart::Chart not found: $chart. Skip $svc."
-              continue
-            fi
-
-            helm upgrade --install "$svc" "$chart" \
-              --namespace "$NAMESPACE" \
-              --create-namespace \
-              --set backend.image.tag="$TARGET_TAG" \
-              --set ui.image.tag="$TARGET_TAG" \
-              --set image.tag="$TARGET_TAG"
-
-            echo "Reset $svc to image tag: $TARGET_TAG"
-          done
-
-      - name: Wait for rollout after reset
-        if: ${{ steps.vars.outputs.action == 'reset-to-main' }}
+      - name: Verify cleanup
         shell: bash
         run: |
           set -euo pipefail
+          if kubectl get namespace yas-developer >/dev/null 2>&1; then
+            echo "::error::yas-developer still exists"
+            exit 1
+          fi
 
-          NAMESPACE="${{ steps.vars.outputs.namespace }}"
-          SERVICE_LIST="${{ steps.vars.outputs.service_list }}"
-
-          for svc in $SERVICE_LIST; do
-            echo "----------------------------------------"
-            echo "Waiting rollout for $svc"
-
-            if kubectl get deployment -n "$NAMESPACE" -l "app.kubernetes.io/instance=$svc" --no-headers 2>/dev/null | grep -q .; then
-              kubectl rollout status deployment \
-                -n "$NAMESPACE" \
-                -l "app.kubernetes.io/instance=$svc" \
-                --timeout=300s
-            elif kubectl get deployment "$svc" -n "$NAMESPACE" >/dev/null 2>&1; then
-              kubectl rollout status deployment/"$svc" \
-                -n "$NAMESPACE" \
-                --timeout=300s
-            else
-              echo "::warning title=Deployment not found::Cannot find deployment for $svc in namespace $NAMESPACE. Skip rollout check."
-            fi
-          done
-
-      - name: Verify cleanup result
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          ACTION="${{ steps.vars.outputs.action }}"
-          NAMESPACE="${{ steps.vars.outputs.namespace }}"
-          SERVICE_LIST="${{ steps.vars.outputs.service_list }}"
-
-          for svc in $SERVICE_LIST; do
-            echo "----------------------------------------"
-            echo "Verify: $svc"
-
-            if [ "$ACTION" = "uninstall" ]; then
-              helm status "$svc" --namespace "$NAMESPACE" >/dev/null 2>&1 && {
-                echo "::error title=Cleanup failed::Helm release $svc still exists."
-                exit 1
-              }
-              echo "Helm release $svc has been removed."
-              continue
-            fi
-
-            kubectl get pods \
-              -n "$NAMESPACE" \
-              -l "app.kubernetes.io/instance=$svc" \
-              -o=jsonpath='{range .items[*]}{.metadata.name}{" => "}{.spec.containers[*].image}{"\n"}{end}' || true
-          done
+          echo "yas-developer was deleted. Long-lived environments were not touched."
+          kubectl get namespace yas-dev yas-staging --ignore-not-found

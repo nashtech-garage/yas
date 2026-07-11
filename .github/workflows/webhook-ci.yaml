@@ -1,4 +1,4 @@
-﻿name: webhook service ci
+name: webhook service ci
 
 on:
   push:
@@ -125,6 +125,9 @@ jobs:
             -B --no-transfer-progress
 
   build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
     needs: [detect-changes, security]
     if: needs.detect-changes.outputs.service == 'true' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest

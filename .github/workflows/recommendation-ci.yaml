@@ -1,4 +1,4 @@
-﻿name: recommendation service ci
+name: recommendation service ci
 
 on:
   push:

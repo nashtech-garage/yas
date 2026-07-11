@@ -1,4 +1,4 @@
-﻿name: storefront-bff service ci
+name: storefront-bff service ci
 
 on:
   push:

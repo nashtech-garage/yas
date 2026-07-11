@@ -1,4 +1,4 @@
-﻿name: backoffice service ci
+name: backoffice service ci
 
 on:
   push:
@@ -144,6 +144,9 @@ jobs:
 
 
   build:
+    concurrency:
+      group: gitops-update-main
+      cancel-in-progress: false
     needs:
       - detect-changes
       - security
