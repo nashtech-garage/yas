@@ -53,11 +53,6 @@ on:
         required: true
         default: "main"
         type: string
-      payment_branch:
-        description: "Branch cho payment"
-        required: true
-        default: "main"
-        type: string
       search_branch:
         description: "Branch cho search"
         required: true
@@ -231,7 +226,6 @@ jobs:
           write_tag PROMOTION_TAG "${{ inputs.promotion_branch }}"
           write_tag RATING_TAG "${{ inputs.rating_branch }}"
           write_tag CART_TAG "${{ inputs.cart_branch }}"
-          write_tag PAYMENT_TAG "${{ inputs.payment_branch }}"
           write_tag SEARCH_TAG "${{ inputs.search_branch }}"
           write_tag WEBHOOK_TAG "${{ inputs.webhook_branch }}"
           write_tag ORDER_TAG "${{ inputs.order_branch }}"
@@ -254,7 +248,6 @@ jobs:
           PROMOTION_TAG: ${{ steps.tags.outputs.PROMOTION_TAG }}
           RATING_TAG: ${{ steps.tags.outputs.RATING_TAG }}
           CART_TAG: ${{ steps.tags.outputs.CART_TAG }}
-          PAYMENT_TAG: ${{ steps.tags.outputs.PAYMENT_TAG }}
           SEARCH_TAG: ${{ steps.tags.outputs.SEARCH_TAG }}
           WEBHOOK_TAG: ${{ steps.tags.outputs.WEBHOOK_TAG }}
           ORDER_TAG: ${{ steps.tags.outputs.ORDER_TAG }}
@@ -286,7 +279,6 @@ jobs:
           verify_image yas-promotion "${PROMOTION_TAG}"
           verify_image yas-rating "${RATING_TAG}"
           verify_image yas-cart "${CART_TAG}"
-          verify_image yas-payment "${PAYMENT_TAG}"
           verify_image yas-search "${SEARCH_TAG}"
           verify_image yas-webhook "${WEBHOOK_TAG}"
           verify_image yas-order "${ORDER_TAG}"
@@ -315,6 +307,37 @@ jobs:
           check_service kafka kafka-cluster-kafka-brokers
           check_service redis redis-master
           check_service elasticsearch elasticsearch-es-http
+
+      - name: Prepare optional payment placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Payment is intentionally not deployed in yas-developer.
+          # Keep a selector-less Service so the internal nginx upstream
+          # can resolve the hostname "payment".
+          if helm status payment -n "${NAMESPACE}" >/dev/null 2>&1; then
+            helm uninstall payment               -n "${NAMESPACE}"               --wait               --timeout 5m
+          fi
+
+          cat <<'EOF' | kubectl apply -n "${NAMESPACE}" -f -
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: payment
+            labels:
+              app.kubernetes.io/name: payment
+              app.kubernetes.io/part-of: yas
+              yas.optional-placeholder: "true"
+          spec:
+            ports:
+              - name: http
+                protocol: TCP
+                port: 80
+                targetPort: 80
+          EOF
+
+          kubectl get service payment -n "${NAMESPACE}" -o wide
 
       - name: Deploy configuration layer
         shell: bash
@@ -346,7 +369,6 @@ jobs:
           PROMOTION_TAG: ${{ steps.tags.outputs.PROMOTION_TAG }}
           RATING_TAG: ${{ steps.tags.outputs.RATING_TAG }}
           CART_TAG: ${{ steps.tags.outputs.CART_TAG }}
-          PAYMENT_TAG: ${{ steps.tags.outputs.PAYMENT_TAG }}
           SEARCH_TAG: ${{ steps.tags.outputs.SEARCH_TAG }}
           WEBHOOK_TAG: ${{ steps.tags.outputs.WEBHOOK_TAG }}
           ORDER_TAG: ${{ steps.tags.outputs.ORDER_TAG }}
@@ -412,11 +434,10 @@ jobs:
           deploy_backend promotion "${PROMOTION_TAG}"
           deploy_backend rating "${RATING_TAG}"
           deploy_backend cart "${CART_TAG}"
-          deploy_backend payment "${PAYMENT_TAG}"
           deploy_backend search "${SEARCH_TAG}"
           deploy_backend webhook "${WEBHOOK_TAG}"
 
-          for service in promotion rating cart payment search webhook; do
+          for service in promotion rating cart search webhook; do
             wait_release "${service}"
           done
 
