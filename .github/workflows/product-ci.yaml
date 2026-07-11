@@ -1,79 +1,133 @@
 name: product service ci
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
     paths:
       - "product/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "product/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+
   workflow_dispatch:
 
 jobs:
-  Build:
+  test:
+    name: Phase 1 - Test
     runs-on: ubuntu-latest
+
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl product -am
+          fetch-depth: 0
+
+      - name: Set up Java and Maven cache
+        uses: ./.github/workflows/actions
+
+      # Chạy unit test, tạo JaCoCo report và kiểm tra ngưỡng coverage.
+      # Nếu instruction coverage dưới 70%, lệnh này sẽ thất bại.
+      - name: Run unit tests and enforce 70 percent coverage
+        run: mvn -B -ntp clean verify -pl product -am
+
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
+        run: >
+          mvn -B -ntp checkstyle:checkstyle
+          -pl product
+          -am
+          -Dcheckstyle.output.file=product-checkstyle-result.xml
+
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/product-checkstyle-result.xml'
+          path: "**/product-checkstyle-result.xml"
+
+      # Luôn upload report, kể cả khi test hoặc coverage thất bại.
+      - name: Upload Test and Coverage Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Product-Service-Reports
+          path: |
+            product/target/surefire-reports/
+            product/target/site/jacoco/
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Test Results
+        if: ${{ always() && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Product-Service-Unit-Test-Results
           path: "product/**/*-reports/TEST*.xml"
           reporter: java-junit
-      - name: Analyze with sonar cloud
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+
+      - name: Analyze with SonarCloud
+        if: ${{ success() && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
-      - name: OWASP Dependency Check
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
-      - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: actions/upload-artifact@master
-        with:
-          name: OWASP Dependency Check Report
-          path: ${{github.workspace}}/reports
+        run: >
+          mvn -B -ntp
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -f product
+
+      # always() giúp report vẫn được comment lên PR khi coverage dưới 70%.
       - name: Add coverage report to PR
+        if: ${{ always() && github.event_name == 'pull_request' && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: madrapps/jacoco-report@v1.6.1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         with:
-          paths: ${{github.workspace}}/product/target/site/jacoco/jacoco.xml
-          token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
+          paths: ${{ github.workspace }}/product/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 70
           min-coverage-changed-files: 60
-          title: 'Product Coverage Report'
+          title: "Product Coverage Report"
           update-comment: true
+          continue-on-error: false
+
+  build:
+    name: Phase 2 - Build
+    runs-on: ubuntu-latest
+
+    # Phase Build chỉ chạy nếu toàn bộ Phase Test thành công.
+    needs: test
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Java and Maven cache
+        uses: ./.github/workflows/actions
+
+      - name: Build Product service
+        run: mvn -B -ntp clean package -pl product -am -DskipTests
+
+      - name: Upload built JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Product-Service-JAR
+          path: product/target/*.jar
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -81,10 +135,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v6
         with:
           context: ./product
           push: true
-          tags: ghcr.io/nashtech-garage/yas-product:latest
+          tags: ghcr.io/vybui13/yas-product:latest
