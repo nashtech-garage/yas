@@ -1,12 +1,17 @@
 package com.yas.location.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.location.LocationApplication;
+import com.yas.location.mapper.StateOrProvinceMapper;
 import com.yas.location.model.Country;
 import com.yas.location.model.StateOrProvince;
 import com.yas.location.repository.CountryRepository;
@@ -16,186 +21,167 @@ import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
-@SpringBootTest(classes = LocationApplication.class)
-public class StateOrProvinceServiceTest {
-
-    @Autowired
-    private CountryRepository countryRepository;
-    @Autowired
+class StateOrProvinceServiceTest {
     private StateOrProvinceRepository stateOrProvinceRepository;
-    @Autowired
+    private CountryRepository countryRepository;
+    private StateOrProvinceMapper stateOrProvinceMapper;
     private StateOrProvinceService stateOrProvinceService;
 
-    private Country country;
-    private StateOrProvince stateOrProvince1;
-    private StateOrProvince stateOrProvince2;
-
-    private void generateTestData() {
-        country = countryRepository.save(Country.builder()
-            .name("country-1")
-            .build());
-        stateOrProvince1 = stateOrProvinceRepository.save(StateOrProvince.builder()
-            .name("state-or-province-1")
-            .country(country)
-            .build());
-        stateOrProvince2 = stateOrProvinceRepository.save(StateOrProvince.builder()
-            .name("state-or-province-2")
-            .country(country)
-            .build());
-    }
-
-    @AfterEach
-    void tearDown() {
-        stateOrProvinceRepository.deleteAll();
-        countryRepository.deleteAll();
-    }
-    
-    @Test
-    void getStateOrProvince_WithValidId_Success() {
-        generateTestData();
-        StateOrProvinceVm stateOrProvinceVm = stateOrProvinceService.findById(stateOrProvince1.getId());
-        assertNotNull(stateOrProvinceVm);
-        assertEquals("state-or-province-1", stateOrProvinceVm.name());
-    }
-    
-    @Test
-    void getStateOrProvince_WithInValidId_ThrowsStateOrProvinceNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> stateOrProvinceService.findById(1L));
-        assertEquals(String.format("The state or province %s is not found", "1"), exception.getMessage());
-    }
-    
-    @Test
-    void createStateOrProvince_ValidData_Success() {
-        generateTestData();
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(country.getId())
-            .name("state-or-province")
-            .code("STATE")
-            .build();
-        StateOrProvince stateOrProvince = stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm);
-        assertEquals("STATE", stateOrProvince.getCode());
-    }
-    
-    @Test
-    void createStateOrProvince_WithNameExisted_ThrowsNameAlreadyExistException() {
-        generateTestData();
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(country.getId())
-            .name("state-or-province-1")
-            .code("STATE")
-            .build();
-        DuplicatedException exception = assertThrows(DuplicatedException.class, () -> stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm));
-        assertEquals(String.format("Request name %s is already existed", "state-or-province-1"), exception.getMessage());
-    }
-    
-    @Test
-    void createStateOrProvince_WithCountryNotExist_ThrowsCountryNotFoundException() {
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(1L)
-            .name("state-or-province-1")
-            .code("STATE")
-            .build();
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> stateOrProvinceService.createStateOrProvince(stateOrProvincePostVm));
-        assertEquals(String.format("The country %s is not found", "1"), exception.getMessage());
-    }
-    
-    @Test
-    void updateStateOrProvince_WithValidData_Success() {
-        generateTestData();
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(country.getId())
-            .name("state-or-province-update")
-            .code("STATE")
-            .build();
-        stateOrProvinceService.updateStateOrProvince(stateOrProvincePostVm, stateOrProvince1.getId());
-        // Get the updated state-or-province to check
-        StateOrProvinceVm stateOrProvinceVm = stateOrProvinceService.findById(stateOrProvince1.getId());
-        assertNotNull(stateOrProvinceVm);
-        assertEquals("state-or-province-update", stateOrProvinceVm.name());
+    @BeforeEach
+    void setUp() {
+        stateOrProvinceRepository = mock(StateOrProvinceRepository.class);
+        countryRepository = mock(CountryRepository.class);
+        stateOrProvinceMapper = mock(StateOrProvinceMapper.class);
+        stateOrProvinceService = new StateOrProvinceService(stateOrProvinceRepository, countryRepository, stateOrProvinceMapper);
     }
 
     @Test
-    void updateStateOrProvince_WithInValidId_ThrowsStateOrProvinceNotFound() {
-        generateTestData();
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(country.getId())
-            .name("state-or-province-update")
-            .code("STATE")
-            .build();
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> stateOrProvinceService.updateStateOrProvince(stateOrProvincePostVm, 1000L));
-        assertEquals(String.format("The state or province %s is not found", "1000"), exception.getMessage());
+    void createStateOrProvince_whenCountryNotFound_throwNotFoundException() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().countryId(1L).build();
+        when(countryRepository.existsById(1L)).thenReturn(false);
+
+        assertThatThrownBy(() -> stateOrProvinceService.createStateOrProvince(postVm))
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    void updateStateOrProvince_WithNameExisted_ThrowsNameAlreadyExistedException() {
-        generateTestData();
-        StateOrProvincePostVm stateOrProvincePostVm = StateOrProvincePostVm.builder()
-            .countryId(country.getId())
-            .name("state-or-province-2")
-            .code("STATE")
-            .build();
-        Long stateOrProvinceId = stateOrProvince1.getId();
-        DuplicatedException exception = assertThrows(DuplicatedException.class,
-            () -> stateOrProvinceService.updateStateOrProvince(stateOrProvincePostVm, stateOrProvinceId));
-        assertEquals(String.format("Request name %s is already existed", "state-or-province-2"), exception.getMessage());
+    void createStateOrProvince_whenNameDuplicated_throwDuplicatedException() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().countryId(1L).name("State").build();
+        when(countryRepository.existsById(1L)).thenReturn(true);
+        when(stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryId("State", 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> stateOrProvinceService.createStateOrProvince(postVm))
+                .isInstanceOf(DuplicatedException.class);
+    }
+
+
+
+    @Test
+    void createStateOrProvince_whenValid_saveStateOrProvince() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().countryId(1L).name("State").build();
+        when(countryRepository.existsById(1L)).thenReturn(true);
+        when(stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryId("State", 1L)).thenReturn(false);
+        when(countryRepository.getReferenceById(1L)).thenReturn(new Country());
+        when(stateOrProvinceRepository.save(any())).thenReturn(new StateOrProvince());
+
+        stateOrProvinceService.createStateOrProvince(postVm);
+
+        verify(stateOrProvinceRepository).save(any());
     }
 
     @Test
-    void deleteStateOrProvince_WithExisted_Success() {
-        generateTestData();
-        stateOrProvinceService.delete(stateOrProvince1.getId());
-        // Get the state-or-province which deleted -> got exception
-        Long stateOrProvinceId = stateOrProvince1.getId();
-        NotFoundException exception = assertThrows(NotFoundException.class,
-            () -> stateOrProvinceService.findById(stateOrProvinceId));
-        assertEquals(String.format("The state or province %s is not found", stateOrProvince1.getId()), exception.getMessage());
+    void updateStateOrProvince_whenNameDuplicated_throwDuplicatedException() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().name("New Name").build();
+        StateOrProvince stateOrProvince = new StateOrProvince();
+        stateOrProvince.setCountry(Country.builder().id(1L).build());
+        
+        when(stateOrProvinceRepository.findById(1L)).thenReturn(Optional.of(stateOrProvince));
+        when(stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryIdAndIdNot("New Name", 1L, 1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> stateOrProvinceService.updateStateOrProvince(postVm, 1L))
+                .isInstanceOf(DuplicatedException.class);
     }
 
     @Test
-    void deleteStateOrProvince_WithInvalidId_ThrowsStateOrProvinceNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> stateOrProvinceService.delete(1L));
-        assertEquals(String.format("The state or province %s is not found", "1"), exception.getMessage());
+    void updateStateOrProvince_whenValid_saveStateOrProvince() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().name("New Name").build();
+        StateOrProvince stateOrProvince = new StateOrProvince();
+        stateOrProvince.setCountry(Country.builder().id(1L).build());
+        
+        when(stateOrProvinceRepository.findById(1L)).thenReturn(Optional.of(stateOrProvince));
+        when(stateOrProvinceRepository.existsByNameIgnoreCaseAndCountryIdAndIdNot("New Name", 1L, 1L)).thenReturn(false);
+
+        stateOrProvinceService.updateStateOrProvince(postVm, 1L);
+
+        assertThat(stateOrProvince.getName()).isEqualTo("New Name");
+        verify(stateOrProvinceRepository).save(stateOrProvince);
     }
 
     @Test
-    void getStateOrProvinceAndCountryName_Success() {
-        generateTestData();
-        List<StateOrProvinceAndCountryGetNameVm> stateOrProvinceAndCountryGetNameVms =
-            stateOrProvinceService.getStateOrProvinceAndCountryNames(List.of(stateOrProvince1.getId(), stateOrProvince2.getId()));
-        assertNotNull(stateOrProvinceAndCountryGetNameVms);
-        assertEquals("country-1", stateOrProvinceAndCountryGetNameVms.getFirst().countryName());
+    void updateStateOrProvince_whenNotFound_throwNotFoundException() {
+        StateOrProvincePostVm postVm = StateOrProvincePostVm.builder().build();
+        when(stateOrProvinceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> stateOrProvinceService.updateStateOrProvince(postVm, 1L))
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    void getAllStateOrProvinces_Success() {
-        generateTestData();
-        List<StateOrProvinceVm> stateOrProvinceVms = stateOrProvinceService.findAll();
-        assertNotNull(stateOrProvinceVms);
-        assertEquals(2, stateOrProvinceVms.size());
+    void delete_whenNotFound_throwNotFoundException() {
+        when(stateOrProvinceRepository.existsById(1L)).thenReturn(false);
+
+        assertThatThrownBy(() -> stateOrProvinceService.delete(1L))
+                .isInstanceOf(NotFoundException.class);
     }
 
     @Test
-    void getAllStateOrProvinceByCountryId_Success() {
-        generateTestData();
-        List<StateOrProvinceVm> stateOrProvinceVms = stateOrProvinceService.getAllByCountryId(country.getId());
-        assertNotNull(stateOrProvinceVms);
-        assertEquals(2, stateOrProvinceVms.size());
+    void delete_whenValid_deleteById() {
+        when(stateOrProvinceRepository.existsById(1L)).thenReturn(true);
+
+        stateOrProvinceService.delete(1L);
+
+        verify(stateOrProvinceRepository).deleteById(1L);
     }
 
     @Test
-    void getStateOrProvincePagination_Success() {
-        generateTestData();
-        int pageNo = 0;
-        int pageSize = 2;
-        StateOrProvinceListGetVm stateOrProvinceListGetVm = stateOrProvinceService.getPageableStateOrProvinces(pageNo, pageSize, country.getId());
-        assertNotNull(stateOrProvinceListGetVm);
-        assertEquals(stateOrProvinceListGetVm.pageNo(), pageNo);
-        assertEquals(stateOrProvinceListGetVm.pageSize(), pageSize);
-        assertEquals(2, stateOrProvinceListGetVm.stateOrProvinceContent().size());
+    void findById_whenValid_returnVm() {
+        StateOrProvince stateOrProvince = new StateOrProvince();
+        when(stateOrProvinceRepository.findById(1L)).thenReturn(Optional.of(stateOrProvince));
+        when(stateOrProvinceMapper.toStateOrProvinceViewModelFromStateOrProvince(stateOrProvince)).thenReturn(new StateOrProvinceVm(1L, "State", "CODE", "TYPE", 1L));
+
+        StateOrProvinceVm result = stateOrProvinceService.findById(1L);
+
+        assertThat(result.id()).isEqualTo(1L);
+    }
+
+    @Test
+    void findById_whenNotFound_throwNotFoundException() {
+        when(stateOrProvinceRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> stateOrProvinceService.findById(1L))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void getStateOrProvinceAndCountryNames_whenCalled_returnList() {
+        StateOrProvince stateOrProvince = StateOrProvince.builder()
+                .name("State")
+                .country(Country.builder().name("Country").build())
+                .build();
+        when(stateOrProvinceRepository.findByIdIn(any())).thenReturn(List.of(stateOrProvince));
+
+        List<StateOrProvinceAndCountryGetNameVm> result = stateOrProvinceService.getStateOrProvinceAndCountryNames(List.of(1L));
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void getPageableStateOrProvinces_whenCalled_returnStateOrProvinceListGetVm() {
+        StateOrProvince stateOrProvince = StateOrProvince.builder().id(1L).country(Country.builder().id(1L).build()).build();
+        Page<StateOrProvince> page = new PageImpl<>(List.of(stateOrProvince), PageRequest.of(0, 10), 1);
+        when(stateOrProvinceRepository.getPageableStateOrProvincesByCountry(anyLong(), any(Pageable.class))).thenReturn(page);
+
+        StateOrProvinceListGetVm result = stateOrProvinceService.getPageableStateOrProvinces(0, 10, 1L);
+
+        assertThat(result.totalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void getAllByCountryId_whenCalled_returnList() {
+        StateOrProvince stateOrProvince = new StateOrProvince();
+        when(stateOrProvinceRepository.findAllByCountryIdOrderByNameAsc(1L)).thenReturn(List.of(stateOrProvince));
+        when(stateOrProvinceMapper.toStateOrProvinceViewModelFromStateOrProvince(any())).thenReturn(new StateOrProvinceVm(1L, "State", "CODE", "TYPE", 1L));
+
+        List<StateOrProvinceVm> result = stateOrProvinceService.getAllByCountryId(1L);
+
+        assertThat(result).hasSize(1);
     }
 }

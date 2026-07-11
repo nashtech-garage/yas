@@ -23,13 +23,16 @@ opentelemetryCollectorConfig:
           value: raw
 
   exporters:
-    logging:
+    debug:
       verbosity: detailed
     loki:
       endpoint: http://loki-gateway/loki/api/v1/push
     otlphttp:
       endpoint: http://tempo:4318
   service:
+    telemetry:
+      metrics:
+        address: 0.0.0.0:8889
     pipelines:
       logs:
         receivers: [loki]

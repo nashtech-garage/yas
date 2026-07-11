@@ -16,13 +16,25 @@ helm repo update
 read -rd '' DOMAIN POSTGRESQL_REPLICAS POSTGRESQL_USERNAME POSTGRESQL_PASSWORD \
 KAFKA_REPLICAS ZOOKEEPER_REPLICAS ELASTICSEARCH_REPLICAES \
 GRAFANA_USERNAME GRAFANA_PASSWORD \
-< <(yq -r '.domain, .postgresql.replicas, .postgresql.username,
- .postgresql.password, .kafka.replicas, .zookeeper.replicas,
- .elasticsearch.replicas, .grafana.username, .grafana.password' ./cluster-config.yaml)
+< <(python3 -c "import yaml; cfg = yaml.safe_load(open('./cluster-config.yaml')); print('\n'.join([
+    str(cfg.get('domain', '')),
+    str(cfg.get('postgresql', {}).get('replicas', '')),
+    str(cfg.get('postgresql', {}).get('username', '')),
+    str(cfg.get('postgresql', {}).get('password', '')),
+    str(cfg.get('kafka', {}).get('replicas', '')),
+    str(cfg.get('zookeeper', {}).get('replicas', '')),
+    str(cfg.get('elasticsearch', {}).get('replicas', '')),
+    str(cfg.get('grafana', {}).get('username', '')),
+    str(cfg.get('grafana', {}).get('password', ''))
+]))")
 
 # Install the postgres-operator
 helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator \
  --create-namespace --namespace postgres
+
+echo "⏳ Waiting for Postgres Operator to be ready..."
+kubectl rollout status deployment/postgres-operator -n postgres --timeout=300s
+sleep 15
 
 #Install postgresql
 helm upgrade --install postgres ./postgres/postgresql \
@@ -32,13 +44,18 @@ helm upgrade --install postgres ./postgres/postgresql \
 --set password="$POSTGRESQL_PASSWORD"
 
 #Install pgadmin
-pg_admin_hostname="pgadmin.$DOMAIN" yq -i '.hostname=env(pg_admin_hostname)' ./postgres/pgadmin/values.yaml
+python3 -c "import yaml; f = './postgres/pgadmin/values.yaml'; d = yaml.safe_load(open(f)); d['hostname'] = 'pgadmin.$DOMAIN'; yaml.safe_dump(d, open(f, 'w'))"
 helm upgrade --install pgadmin ./postgres/pgadmin \
 --create-namespace --namespace postgres \
 
 #Install strimzi-kafka-operator
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
---create-namespace --namespace kafka
+--create-namespace --namespace kafka --version 0.41.0 \
+--set resources.limits.memory=1024Mi --set resources.requests.memory=512Mi
+
+echo "⏳ Waiting for Strimzi Kafka Operator to be ready..."
+kubectl rollout status deployment/strimzi-cluster-operator -n kafka --timeout=300s
+sleep 15
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
@@ -49,7 +66,7 @@ helm upgrade --install kafka-cluster ./kafka/kafka-cluster \
 --set postgresql.password="$POSTGRESQL_PASSWORD"
 
 #Install akhq
-akhq_hostname="akhq.$DOMAIN" yq -i '.hostname=env(akhq_hostname)' ./kafka/akhq.values.yaml
+python3 -c "import yaml; f = './kafka/akhq.values.yaml'; d = yaml.safe_load(open(f)); d['hostname'] = 'akhq.$DOMAIN'; yaml.safe_dump(d, open(f, 'w'))"
 helm upgrade --install akhq akhq/akhq \
 --create-namespace --namespace kafka \
 --values ./kafka/akhq.values.yaml
@@ -58,22 +75,17 @@ helm upgrade --install akhq akhq/akhq \
 helm upgrade --install elastic-operator elastic/eck-operator \
  --create-namespace --namespace elasticsearch
 
+echo "⏳ Waiting for Elastic Operator to be ready..."
+kubectl rollout status statefulset/elastic-operator -n elasticsearch --timeout=300s
+sleep 15
+
 # Install elasticsearch-cluster
 helm upgrade --install elasticsearch-cluster ./elasticsearch/elasticsearch-cluster \
 --create-namespace --namespace elasticsearch \
 --set elasticsearch.replicas="$ELASTICSEARCH_REPLICAES" \
 --set kibana.ingress.hostname="kibana.$DOMAIN"
 
-#Install loki
-helm upgrade --install loki grafana/loki \
- --create-namespace --namespace observability \
- -f ./observability/loki.values.yaml
-
-#Install tempo
-helm upgrade --install tempo grafana/tempo \
---create-namespace --namespace observability \
--f ./observability/tempo.values.yaml
-
+# cert-manager is kept as it might be used by other parts
 #Install cert manager
 helm upgrade --install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
@@ -84,33 +96,49 @@ helm upgrade --install cert-manager jetstack/cert-manager \
   --set webhook.timeoutSeconds=4 \
   --set admissionWebhooks.certManager.create=true
 
-#Install opentelemetry-operator
+# [Observability Disabled] Observability (Prometheus, Grafana, Loki, Tempo, OpenTelemetry, Promtail) has been commented out to optimize RAM usage.
+#
+# Install loki
+helm upgrade --install loki grafana/loki \
+ --create-namespace --namespace observability \
+ -f ./observability/loki.values.yaml \
+ --set loki.useTestSchema=true
+
+# Install tempo
+helm upgrade --install tempo grafana/tempo \
+--create-namespace --namespace observability \
+-f ./observability/tempo.values.yaml
+
+# Install opentelemetry-operator
 helm upgrade --install opentelemetry-operator open-telemetry/opentelemetry-operator \
 --create-namespace --namespace observability
 
-#Install opentelemetry-collector
+echo "⏳ Waiting for OpenTelemetry Operator to be ready..."
+kubectl rollout status deployment/opentelemetry-operator -n observability --timeout=300s
+sleep 15
+
+# Install opentelemetry-collector
 helm upgrade --install opentelemetry-collector ./observability/opentelemetry \
 --create-namespace --namespace observability
 
-#Install promtail
+# Install promtail
 helm upgrade --install promtail grafana/promtail \
 --create-namespace --namespace observability \
 --values ./observability/promtail.values.yaml
 
-#Install prometheus + grafana
-grafana_hostname="grafana.$DOMAIN" yq -i '.hostname=env(grafana_hostname)' ./observability/prometheus.values.yaml
-postgresql_username="$POSTGRESQL_USERNAME" yq -i '.grafana."grafana.ini".database.user=env(postgresql_username)' ./observability/prometheus.values.yaml
-postgresql_password="$POSTGRESQL_PASSWORD" yq -i '.grafana."grafana.ini".database.password=env(postgresql_password)' ./observability/prometheus.values.yaml
+# Install prometheus + grafana
+python3 -c "import yaml; f = './observability/prometheus.values.yaml'; d = yaml.safe_load(open(f)); d['hostname'] = 'grafana.$DOMAIN'; d.setdefault('grafana', {}).setdefault('grafana.ini', {}).setdefault('database', {})['user'] = '$POSTGRESQL_USERNAME'; d['grafana']['grafana.ini']['database']['password'] = '$POSTGRESQL_PASSWORD'; yaml.safe_dump(d, open(f, 'w'))"
 helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
  --create-namespace --namespace observability \
 -f ./observability/prometheus.values.yaml \
+ --set grafana.assertNoLeakedSecrets=false
 
-#Install grafana operator
+# Install grafana operator
 helm upgrade --install grafana-operator oci://ghcr.io/grafana-operator/helm-charts/grafana-operator \
 --version v5.0.2 \
 --create-namespace --namespace observability
 
-#Add datasource and dashboard to grafana
+# Add datasource and dashboard to grafana
 helm upgrade --install grafana ./observability/grafana \
 --create-namespace --namespace observability \
 --set hotname="grafana.$DOMAIN" \

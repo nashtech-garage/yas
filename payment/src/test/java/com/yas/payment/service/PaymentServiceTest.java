@@ -124,4 +124,17 @@ class PaymentServiceTest {
         assertEquals(capturedPayment.getFailureMessage(), responseVm.failureMessage());
     }
 
+    @Test
+    void initPayment_WhenHandlerNotFound_ShouldThrowIllegalArgumentException() {
+        InitPaymentRequestVm initPaymentRequestVm = InitPaymentRequestVm.builder()
+                .paymentMethod("NON_EXISTENT_METHOD")
+                .totalPrice(BigDecimal.TEN)
+                .checkoutId("123")
+                .build();
+        
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            paymentService.initPayment(initPaymentRequestVm);
+        });
+    }
+
 }

@@ -1,0 +1,179 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'besukem'
+        DOMAIN = 'yas.local'
+        HELM_TIMEOUT = '5m'
+        NAMESPACE = 'staging'
+    }
+
+    parameters {
+        string(name: 'RELEASE_TAG', defaultValue: '', description: 'Tag phiên bản release, ví dụ: v1.0.0')
+    }
+
+    options {
+        skipDefaultCheckout()
+    }
+
+    stages {
+        stage('Validate Tag') {
+            steps {
+                script {
+                    def tag = params.RELEASE_TAG?.trim()
+
+                    if (!tag) {
+                        // Cố gắng phát hiện tag từ Git
+                        checkout scm
+                        tag = sh(
+                            script: 'git describe --tags --exact-match HEAD 2>/dev/null || echo ""',
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    if (!tag || !(tag ==~ /^v\d+\.\d+\.\d+$/)) {
+                        error "❌ RELEASE_TAG không hợp lệ: '${tag}'. Yêu cầu format vX.Y.Z (ví dụ: v1.0.0)"
+                    }
+
+                    env.RELEASE_TAG = tag
+                    echo "📌 Release Tag hợp lệ: ${env.RELEASE_TAG}"
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+                sh 'chmod +x mvnw || true'
+                echo "📌 Checkout hoàn tất cho tag: ${env.RELEASE_TAG}"
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            steps {
+                script {
+                    def services = [
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'backoffice', 'storefront'
+                    ]
+                    def releaseTag = env.RELEASE_TAG
+
+                    echo "=========================================================="
+                    echo "BUILD & PUSH TẤT CẢ SERVICES VỚI RELEASE TAG: ${releaseTag}"
+                    echo "=========================================================="
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    }
+
+                    services.each { svc ->
+                        def imageName = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+
+                        def hasDockerfile = sh(
+                            script: "test -f ${svc}/Dockerfile && echo 'yes' || echo 'no'",
+                            returnStdout: true
+                        ).trim()
+
+                        if (hasDockerfile == 'yes') {
+                            if (fileExists("${svc}/pom.xml")) {
+                                echo "🔨 Building Java project ${svc} with Maven..."
+                                sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svc} -am -U -Drevision=1.0-SNAPSHOT"
+                                sh "rm -f ${svc}/target/*-tests.jar || true"
+                            }
+                            echo "🔨 Building: ${imageName}:${releaseTag}"
+                            sh "docker build -t ${imageName}:${releaseTag} ${svc}/"
+                            sh "docker push ${imageName}:${releaseTag}"
+                            echo "✅ Pushed: ${imageName}:${releaseTag}"
+                        } else {
+                            echo "⚠️ Bỏ qua ${svc}: Không tìm thấy Dockerfile"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to staging namespace (GitOps)') {
+            steps {
+                script {
+                    def releaseTag = env.RELEASE_TAG
+                    
+                    def services = [
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'sampledata', 'backoffice-bff', 'storefront-bff',
+                        'backoffice-ui', 'storefront-ui'
+                    ]
+                    def otherApps = ['swagger-ui', 'yas-configuration']
+
+                    echo "=========================================================="
+                    echo "🔄 UPDATING GITOPS MANIFESTS FOR STAGING (RELEASE: ${releaseTag})"
+                    echo "=========================================================="
+
+                    // Update services with release tags
+                    services.each { svc ->
+                        def chartName = svc
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                        if (svc == 'backoffice-ui') {
+                            imageRepo = "${env.DOCKER_USERNAME}/backoffice"
+                        } else if (svc == 'storefront-ui') {
+                            imageRepo = "${env.DOCKER_USERNAME}/storefront"
+                        }
+
+                        def yamlFile = "argocd/apps/staging/staging-${chartName}.yaml"
+                        echo "📝 Updating tag in GitOps manifest: ${yamlFile} -> tag=${releaseTag}, repo=${imageRepo}, revision=${releaseTag}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} ${releaseTag} ${imageRepo} ${releaseTag}"
+                    }
+
+                    // Update targetRevision for other apps
+                    otherApps.each { app ->
+                        def yamlFile = "argocd/apps/staging/staging-${app}.yaml"
+                        echo "📝 Updating revision in GitOps manifest: ${yamlFile} -> revision=${releaseTag}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} none none ${releaseTag}"
+                    }
+
+                    echo "----------------------------------------------------------"
+                    echo "📤 Committing and Pushing GitOps updates back to Git..."
+                    sh "git config user.name 'Jenkins CI'"
+                    sh "git config user.email 'jenkins@yas.local'"
+                    sh "git add argocd/apps/staging/"
+
+                    def commitMsg = "chore(staging): release version ${releaseTag} [skip ci]"
+                    sh "git commit -m '${commitMsg}' || echo 'No Git changes to commit'"
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
+                        sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/luc1fe4/yas.git"
+                        sh "git push origin HEAD:gitops-staging"
+                    }
+
+                    echo "=========================================================="
+                    echo "🎉 GITOPS RELEASE DEPLOY TRIGGER HOÀN TẤT"
+                    echo "ArgoCD will automatically reconcile staging namespace to tag: ${releaseTag}"
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ RELEASE TAG DEPLOY COMPLETED. Tag: ${env.RELEASE_TAG}, Namespace: ${env.NAMESPACE}"
+        }
+        failure {
+            echo "❌ RELEASE TAG DEPLOY FAILED. Vui lòng kiểm tra log."
+        }
+    }
+}

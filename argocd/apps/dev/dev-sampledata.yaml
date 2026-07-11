@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-sampledata
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/luc1fe4/yas.git'
+    targetRevision: 'gitops-dev'
+    path: k8s/charts/sampledata
+    helm:
+      parameters:
+        - name: backend.image.tag
+          value: '8b3e1df2'
+        - name: backend.image.repository
+          value: 'besukem/sampledata'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

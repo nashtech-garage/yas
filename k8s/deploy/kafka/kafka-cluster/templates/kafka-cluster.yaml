@@ -33,12 +33,26 @@ spec:
       transaction.state.log.min.isr: 1
       default.replication.factor: 1
       min.insync.replicas: 1
+    jvmOptions:
+      "-Dsun.net.inetaddr.negative.ttl": "0"
+    template:
+      pod:
+        spec:
+          nodeSelector:
+            type: heavy
   zookeeper:
     replicas: {{ .Values.zookeeper.replicas }}
     storage:
       type: persistent-claim
       size: {{ .Values.zookeeper.storeSize }}
       deleteClaim: false
+    jvmOptions:
+      "-Dsun.net.inetaddr.negative.ttl": "0"
+    template:
+      pod:
+        spec:
+          nodeSelector:
+            type: heavy
   entityOperator:
     topicOperator: {}
     userOperator: {}

@@ -1,0 +1,133 @@
+jenkins:
+  systemMessage: "YAS Jenkins Automation - Configuration as Code (JCasC)"
+
+jobs:
+  - script: >
+      pipelineJob('developer_build') {
+        description('Pipeline triển khai tự động các service dựa theo tham số branch của nhà phát triển.')
+        parameters {
+          stringParam('NAMESPACE', 'dev', 'K8s Namespace triển khai (Ví dụ: dev, staging, qa)')
+          booleanParam('DRY_RUN', false, 'Chạy mô phỏng (Dry Run) trước. Bỏ check để deploy THỰC TẾ lên K8s.')
+          
+          stringParam('BRANCH_cart', 'main', 'Nhánh git để deploy cho dịch vụ cart')
+          stringParam('BRANCH_customer', 'main', 'Nhánh git để deploy cho dịch vụ customer')
+          stringParam('BRANCH_inventory', 'main', 'Nhánh git để deploy cho dịch vụ inventory')
+          stringParam('BRANCH_media', 'main', 'Nhánh git để deploy cho dịch vụ media')
+          stringParam('BRANCH_order', 'main', 'Nhánh git để deploy cho dịch vụ order')
+          stringParam('BRANCH_product', 'main', 'Nhánh git để deploy cho dịch vụ product')
+          stringParam('BRANCH_search', 'main', 'Nhánh git để deploy cho dịch vụ search')
+          stringParam('BRANCH_tax', 'main', 'Nhánh git để deploy cho dịch vụ tax')
+          stringParam('BRANCH_sampledata', 'main', 'Nhánh git để deploy cho dịch vụ sampledata')
+          
+          stringParam('BRANCH_backoffice_bff', 'main', 'Nhánh git để deploy cho backoffice-bff')
+          stringParam('BRANCH_storefront_bff', 'main', 'Nhánh git để deploy cho storefront-bff')
+          stringParam('BRANCH_backoffice_ui', 'main', 'Nhánh git để deploy cho backoffice-ui (Frontend)')
+          stringParam('BRANCH_storefront_ui', 'main', 'Nhánh git để deploy cho storefront-ui (Frontend)')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/luc1fe4/yas.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-developer-build')
+          }
+        }
+      }
+      
+      pipelineJob('developer_cleanup') {
+        description('Xóa toàn bộ Helm releases của developer_build khỏi namespace trên K8s.')
+        parameters {
+          stringParam('NAMESPACE', 'dev', 'Namespace cần dọn dẹp (xóa toàn bộ Helm releases)')
+          booleanParam('DRY_RUN', true, 'Chạy thử trước. Bỏ check để xóa THẠT.')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/luc1fe4/yas.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-developer-cleanup')
+          }
+        }
+      }
+
+      pipelineJob('auto_deploy_dev') {
+        description('Tự động build/push Docker image và deploy vào namespace dev khi main thay đổi.')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/luc1fe4/yas.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-auto-deploy-dev')
+          }
+        }
+        triggers {
+          scm('H/5 * * * *')
+        }
+      }
+
+      pipelineJob('release_tag_deploy') {
+        description('Phát hiện release tag vX.Y.Z, build image theo tag, push Docker Hub và deploy vào staging.')
+        parameters {
+          stringParam('RELEASE_TAG', '', 'Tag phiên bản release, ví dụ: v1.0.0')
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/luc1fe4/yas.git')
+                  credentials('github-credentials')
+                }
+                branch('main')
+              }
+            }
+            scriptPath('Jenkinsfile-release-tag')
+          }
+        }
+      }
+
+      multibranchPipelineJob('yas_ci') {
+        description('CI Pipeline tự động quét và build cho mọi branch có commit mới.')
+        branchSources {
+          branchSource {
+            source {
+              git {
+                id('yas-ci-git')
+                remote('https://github.com/luc1fe4/yas.git')
+                credentialsId('github-credentials')
+                traits {
+                  gitBranchDiscovery()
+                }
+              }
+            }
+          }
+        }
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile-yas-ci')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(10)
+          }
+        }
+      }

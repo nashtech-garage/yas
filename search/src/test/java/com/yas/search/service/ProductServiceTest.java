@@ -144,6 +144,51 @@ class ProductServiceTest {
     }
 
     @Test
+    void testFindProductAdvance_whenKeywordsAndFiltersAreEmpty_ReturnProductListGetVm() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "", 0, 10, null, "",
+            null, null, null, SortType.DEFAULT);
+        productService.findProductAdvance(criteriaDto);
+
+        verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
+    }
+
+    @Test
+    void testFindProductAdvance_whenOnlyMinPrice_ReturnProductListGetVm() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, null, null,
+            null, 10.0, null, SortType.DEFAULT);
+        productService.findProductAdvance(criteriaDto);
+
+        verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
+    }
+
+    @Test
+    void testFindProductAdvance_whenOnlyMaxPrice_ReturnProductListGetVm() {
+
+        SearchHits<Product> searchHits = getSearchHits();
+
+        when(elasticsearchOperations.search(any(NativeQuery.class), eq(Product.class))).thenReturn(searchHits);
+
+        ProductCriteriaDto criteriaDto = new ProductCriteriaDto(
+            "test", 0, 10, null, null,
+            null, null, 100.0, SortType.DEFAULT);
+        productService.findProductAdvance(criteriaDto);
+
+        verify(elasticsearchOperations).search(any(NativeQuery.class), eq(Product.class));
+    }
+
+    @Test
     void testAutoCompleteProductName_whenExistsProducts_returnProductNameListVm() {
 
         SearchHits<Product> searchHits =

@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: strip-transfer-encoding
+  namespace: dev
+spec:
+  workloadSelector:
+    labels:
+      app.kubernetes.io/name: search
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_OUTBOUND
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inlineCode: |
+              function envoy_on_request(request_handle)
+                local method = request_handle:headers():get(":method")
+                request_handle:streamInfo():dynamicMetadata():set("envoy.filters.http.lua", "method", method)
+              end
+              function envoy_on_response(response_handle)
+                local metadata = response_handle:streamInfo():dynamicMetadata():get("envoy.filters.http.lua")
+                local method = metadata and metadata["method"]
+                if method == "HEAD" then
+                  response_handle:logInfo("Stripping body headers from HEAD response")
+                  response_handle:headers():remove("transfer-encoding")
+                  response_handle:headers():remove("content-length")
+                end
+              end

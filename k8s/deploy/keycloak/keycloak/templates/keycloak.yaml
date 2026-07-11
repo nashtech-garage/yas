@@ -32,6 +32,10 @@ spec:
   unsupported:
     podTemplate:
       spec:
+        initContainers:
+          - name: wait-for-postgres
+            image: busybox:1.36
+            command: ['sh', '-c', 'until nc -z -w 2 postgresql.postgres 5432; do echo waiting for postgres; sleep 2; done;']
         volumes:
           - name: yas-themes
             configMap:

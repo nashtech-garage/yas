@@ -1,0 +1,10 @@
+backend:
+  image:
+    repository: ghcr.io/nashtech-garage/yas-rating
+    tag: latest
+
+  nameOverride: rating
+  fullnameOverride: rating
+  databaseName: rating
+  ingress:
+    enabled: false

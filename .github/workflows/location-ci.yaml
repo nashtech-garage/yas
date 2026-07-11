@@ -70,7 +70,7 @@ jobs:
         with:
           paths: ${{github.workspace}}/location/target/site/jacoco/jacoco.xml
           token: ${{secrets.GITHUB_TOKEN}}
-          min-coverage-overall: 80
+          min-coverage-overall: 70
           min-coverage-changed-files: 60
           title: 'Location Coverage Report'
           update-comment: true

@@ -31,7 +31,7 @@ public class StockHistoryService {
 
         for (final Stock stock : stocks) {
             StockQuantityVm stockQuantityVm = stockQuantityVms
-                .parallelStream()
+                .stream()
                 .filter(stockQuantityVm1 -> stockQuantityVm1.stockId().equals(stock.getId()))
                 .findFirst()
                 .orElse(null);

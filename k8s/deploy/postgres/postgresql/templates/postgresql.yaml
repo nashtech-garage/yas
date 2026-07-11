@@ -7,6 +7,8 @@ metadata:
     team: acid
 
 spec:
+  nodeSelector:
+    type: heavy
   streams:
     - applicationId: product_db_stream_appid
       database: product
@@ -43,8 +45,8 @@ spec:
     promotion: {{ .Values.username }}
     rating: {{ .Values.username }}
     tax: {{ .Values.username }}
-    recommendation: { { .Values.username } }
-    webhook: { { .Values.username } }
+    recommendation: {{ .Values.username }}
+    webhook: {{ .Values.username }}
     grafana: {{ .Values.username }}
   patroni:
     slots:

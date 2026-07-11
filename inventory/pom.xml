@@ -13,9 +13,6 @@
     <name>inventory</name>
     <description>YAS Inventory Service</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-inventory</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>
@@ -65,6 +62,7 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>

@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+@org.junit.jupiter.api.Disabled("Disabled due to Docker environment issues in CI")
 @Testcontainers
 @SpringBootTest
 @Import(KafkaIntegrationTestConfiguration.class)

@@ -81,6 +81,11 @@ extraVolumeMounts: []
 extraApplicationConfigPaths: []
 #  - /opt/config/application-example.yaml
 
+initContainers:
+  - name: wait-for-postgres
+    image: busybox:1.36
+    command: ['sh', '-c', 'until nc -z -w 2 postgresql.postgres 5432; do echo waiting for postgres; sleep 2; done;']
+
 lifecycle:
   preStop:
     exec:
@@ -105,7 +110,7 @@ readinessProbe:
     port: metric
 
 serviceMonitor:
-  enabled: true
+  enabled: false
 
 service:
   type: ClusterIP
@@ -113,7 +118,7 @@ service:
 
 ingress:
   enabled: false
-  className: "nginx"
+  className: "traefik"
   annotations: {}
   host: chart-example.local
   path: /
@@ -141,7 +146,8 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
+nodeSelector:
+  type: heavy
 
 tolerations: []
 

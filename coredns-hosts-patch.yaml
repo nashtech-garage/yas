@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+data:
+  NodeHosts: |
+    192.168.65.254 host.k3d.internal
+    172.18.0.3 k3d-yas-cluster-server-0
+    172.18.0.6 k3d-yas-cluster-agent-2
+    172.18.0.2 k3d-yas-cluster-tools
+    172.18.0.5 k3d-yas-cluster-agent-0
+    172.18.0.7 k3d-yas-cluster-serverlb
+    172.18.0.4 k3d-yas-cluster-agent-1
+    10.43.203.219 identity.yas.local.com

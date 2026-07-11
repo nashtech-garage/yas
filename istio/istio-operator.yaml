@@ -1,0 +1,80 @@
+# IstioOperator config for YAS cluster
+# Profile: minimal → saves RAM on laptops (~400Mi total for istiod)
+# Kiali, Prometheus, Jaeger are installed separately via addon YAMLs
+#
+# Resources needed per node: istiod ~300Mi, each Envoy sidecar ~50-100Mi
+# Total additional RAM: ~1-2GB for 4-node cluster with 14 services
+#
+# Usage: istioctl install -f istio/istio-operator.yaml -y
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: yas-istio
+spec:
+  profile: minimal
+  components:
+    pilot:
+      k8s:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        hpaSpec:
+          minReplicas: 1
+          maxReplicas: 1
+    # Enable ingress gateway for Kiali/Jaeger external access
+    ingressGateways:
+      - name: istio-ingressgateway
+        enabled: true
+        k8s:
+          service:
+            type: NodePort
+            ports:
+              - port: 80
+                targetPort: 8080
+                name: http2
+                nodePort: 31380
+              - port: 443
+                targetPort: 8443
+                name: https
+                nodePort: 31390
+  meshConfig:
+    # Enable access logging for retry evidence collection
+    accessLogFile: /dev/stdout
+    accessLogFormat: >
+      [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%
+      %PROTOCOL%" %RESPONSE_CODE% %RESPONSE_FLAGS%
+      %DURATION%ms retries=%RESP(X-ENVOY-ATTEMPT-COUNT)%
+      "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%"
+    # Enable distributed tracing → Jaeger
+    defaultConfig:
+      # CRITICAL: Hold app startup until Envoy proxy is fully ready
+      # Prevents "Connection refused" on Postgres/Kafka/Keycloak at pod init
+      holdApplicationUntilProxyStarts: true
+      tracing:
+        sampling: 100.0
+        zipkin:
+          address: jaeger-collector.istio-system:9411
+    # Use permissive mode initially — changed per-namespace in peer-authentication.yaml
+    enablePrometheusMerge: true
+  values:
+    global:
+      # Proxy (Envoy sidecar) resource limits — kept low for laptop
+      proxy:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      # Logging for debugging
+      logging:
+        level: "default:info"
+    pilot:
+      # Reduce Istiod memory usage
+      env:
+        GOGC: "25"

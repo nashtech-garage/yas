@@ -7,7 +7,7 @@ spec:
     tls:
       selfSignedCertificate:
         disabled: true
-  version: 8.8.1
+  version: 7.17.10
   auth:
     fileRealm:
       - secretName: user-credentials-secret
@@ -16,3 +16,18 @@ spec:
       count: {{ .Values.elasticsearch.replicas }}
       config:
         node.store.allow_mmap: false
+      podTemplate:
+        spec:
+          initContainers:
+            - name: wait-for-dns
+              image: busybox:1.36
+              command: ['sh', '-c', 'until nslookup kubernetes.default.svc.cluster.local; do echo waiting for dns; sleep 2; done;']
+          containers:
+            - name: elasticsearch
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 250m
+                limits:
+                  memory: 1Gi
+                  cpu: 1000m

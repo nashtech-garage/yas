@@ -1,0 +1,197 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_USERNAME = 'besukem'
+        DOMAIN = 'yas.local'
+        HELM_TIMEOUT = '5m'
+        NAMESPACE = 'dev'
+    }
+
+    options {
+        skipDefaultCheckout()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                cleanWs()
+                checkout scm
+                sh 'chmod +x mvnw || true'
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short=8 HEAD',
+                        returnStdout: true
+                    ).trim()
+                    echo "📌 Commit ID: ${env.GIT_COMMIT_SHORT}"
+                }
+            }
+        }
+
+        stage('Detect Changed Services') {
+            steps {
+                script {
+                    sh "git fetch --no-tags --prune origin +refs/heads/main:refs/remotes/origin/main || true"
+
+                    def changedFiles = sh(
+                        script: """
+                            FILES=""
+                            if git rev-parse --verify origin/main >/dev/null 2>&1; then
+                                FILES=\$(git diff --name-only HEAD~1..HEAD)
+                            fi
+                            if [ -z "\$FILES" ]; then
+                                git ls-files
+                            else
+                                echo "\$FILES"
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    def services = [
+                        'cart', 'customer', 'inventory', 'media', 'order',
+                        'product', 'search', 'tax', 'backoffice-bff', 'storefront-bff',
+                        'sampledata', 'backoffice', 'storefront'
+                    ]
+
+                    def affected = services.findAll { svc ->
+                        changedFiles && (changedFiles =~ /(?m)^${java.util.regex.Pattern.quote(svc)}\//)
+                    }
+
+                    // Nếu file nền tảng thay đổi (pom.xml, common-library, etc.) -> build all
+                    def rootFiles = ['pom.xml', 'common-library/', '.github/', 'mvnw']
+                    def rootChanged = rootFiles.any { rf ->
+                        changedFiles.split('\n').any { f -> f.startsWith(rf) }
+                    }
+
+                    if (rootChanged) {
+                        echo "⚠️ Root/foundation files changed. Building ALL services."
+                        affected = services
+                    }
+
+                    def result = affected.isEmpty() ? 'none' : affected.join(',')
+                    env.CHANGED_SERVICES = result
+                    echo "🔍 Services to build/deploy: ${env.CHANGED_SERVICES}"
+                }
+            }
+        }
+
+        stage('Build & Push Docker Images') {
+            when {
+                expression { env.CHANGED_SERVICES != 'none' }
+            }
+            steps {
+                script {
+                    def services = env.CHANGED_SERVICES.split(',')
+                    def commitTag = env.GIT_COMMIT_SHORT
+
+                    echo "=========================================================="
+                    echo "BUILD & PUSH ${services.size()} SERVICE(S) VỚI TAG: ${commitTag}"
+                    echo "=========================================================="
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    }
+
+                    services.each { svc ->
+                        def svcDir = svc
+                        def imageName = "${env.DOCKER_USERNAME}/${svc}"
+
+                        echo "----------------------------------------------------------"
+                        echo "🔨 Building: ${imageName}:${commitTag}"
+
+                        // Check if Dockerfile exists
+                        def hasDockerfile = sh(
+                            script: "test -f ${svcDir}/Dockerfile && echo 'yes' || echo 'no'",
+                            returnStdout: true
+                        ).trim()
+
+                        if (hasDockerfile == 'yes') {
+                            if (fileExists("${svcDir}/pom.xml")) {
+                                echo "☕ Building Java project ${svcDir} with Maven..."
+                                sh "./mvnw clean package -DskipTests -f pom.xml -pl ${svcDir} -am -U -Drevision=1.0-SNAPSHOT"
+                            }
+                            sh "docker build -t ${imageName}:${commitTag} -t ${imageName}:latest ${svcDir}/"
+                            sh "docker push ${imageName}:${commitTag}"
+                            sh "docker push ${imageName}:latest"
+                            echo "✅ Pushed: ${imageName}:${commitTag} + :latest"
+                        } else {
+                            echo "⚠️ Bỏ qua ${svc}: Không tìm thấy Dockerfile trong ${svcDir}/"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to dev namespace (GitOps)') {
+            steps {
+                script {
+                    def services = env.CHANGED_SERVICES.split(',')
+                    def commitTag = env.GIT_COMMIT_SHORT
+
+                    echo "=========================================================="
+                    echo "🔄 UPDATING GITOPS MANIFESTS FOR DEV"
+                    echo "Commit: ${commitTag}"
+                    echo "Services to update: ${env.CHANGED_SERVICES}"
+                    echo "=========================================================="
+
+                    services.each { svc ->
+                        def chartName = svc
+                        if (svc == 'storefront') {
+                            chartName = 'storefront-ui'
+                        } else if (svc == 'backoffice') {
+                            chartName = 'backoffice-ui'
+                        }
+                        
+                        def imageRepo = "${env.DOCKER_USERNAME}/${svc}"
+                        def yamlFile = "argocd/apps/dev/dev-${chartName}.yaml"
+
+                        echo "📝 Updating tag in GitOps manifest: ${yamlFile} -> tag=${commitTag}, repo=${imageRepo}"
+                        sh "python3 scripts/update-gitops-tag.py ${yamlFile} ${commitTag} ${imageRepo} gitops-dev"
+                    }
+
+                    echo "----------------------------------------------------------"
+                    echo "📤 Committing and Pushing GitOps updates back to Git..."
+                    sh "git config user.name 'Jenkins CI'"
+                    sh "git config user.email 'jenkins@yas.local'"
+                    sh "git add argocd/apps/dev/"
+                    
+                    def commitMsg = "chore(dev): update image tags to ${commitTag} [skip ci]"
+                    sh "git commit -m '${commitMsg}' || echo 'No Git changes to commit'"
+
+                    withCredentials([usernamePassword(
+                        credentialsId: 'github-credentials',
+                        usernameVariable: 'GIT_USER',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
+                        sh "git remote set-url origin https://${GIT_USER}:${GIT_TOKEN}@github.com/luc1fe4/yas.git"
+                        sh "git push origin HEAD:gitops-dev"
+                    }
+
+                    echo "=========================================================="
+                    echo "🎉 GITOPS DEPLOY TRIGGER HOÀN TẤT"
+                    echo "ArgoCD will automatically reconcile the changes shortly."
+                    echo "=========================================================="
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "✅ AUTO DEPLOY DEV COMPLETED SUCCESSFULLY. Commit: ${env.GIT_COMMIT_SHORT}"
+        }
+        failure {
+            echo "❌ AUTO DEPLOY DEV FAILED. Vui lòng kiểm tra log."
+        }
+    }
+}

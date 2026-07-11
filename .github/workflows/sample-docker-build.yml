@@ -1,0 +1,37 @@
+name: Sample Service Build
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean package -pl tax -am -DskipTests
+
+      - name: Set commit hash
+        id: vars
+        run: echo "COMMIT_ID=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build Docker image for sample service (tax)
+        run: |
+          echo "Building Docker image for tax service..."
+          docker build -t yas-tax:${{ env.COMMIT_ID }} ./tax
+          
+      - name: Log the built image
+        run: |
+          echo "Successfully built image yas-tax with tag ${{ env.COMMIT_ID }}"
+          docker images yas-tax

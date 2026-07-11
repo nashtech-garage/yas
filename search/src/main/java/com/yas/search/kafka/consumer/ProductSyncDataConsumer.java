@@ -54,6 +54,10 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductMsgKey, Prod
         } else {
             var operation = productCdcMessage.getOp();
             var productId = key.getId();
+            if (operation == null) {
+                log.warn("Operation is null for product: '{}'", productId);
+                return;
+            }
             switch (operation) {
                 case CREATE, READ -> productSyncDataService.createProduct(productId);
                 case UPDATE -> productSyncDataService.updateProduct(productId);

@@ -5,6 +5,9 @@ backend:
 
   nameOverride: backoffice-bff
   fullnameOverride: backoffice-bff
+  service:
+    type: NodePort
+    nodePort: 30086
   deployment:
     annotations:
       configmap.reloader.stakater.com/reload: "yas-gateway-routes-config-configmap,backoffice-bff-extra-configmap"
@@ -37,3 +40,16 @@ backend:
   extraApplicationConfigPaths:
     - /opt/yas/gateway-routes-config/gateway-routes-config.yaml
     - /opt/yas/extra-config/backoffice-bff-extra-config.yaml
+  initContainers:
+    - name: wait-for-keycloak
+      image: busybox:1.28
+      command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for Keycloak OIDC endpoint..."
+          until wget -qO- http://identity.yas.local.com/realms/Yas/.well-known/openid-configuration > /dev/null 2>&1; do
+            echo "Keycloak not ready, retrying in 5s..."
+            sleep 5
+          done
+          echo "Keycloak is ready!"

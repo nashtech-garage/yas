@@ -1,0 +1,1 @@
+The base chart for backend application

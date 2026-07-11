@@ -1,0 +1,11 @@
+{{- if .Values.storefrontEnvProduction }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-env-production-configmap
+  annotations:
+    reloader.stakater.com/match: "true"
+data:
+  .env.production: |
+    {{ .Values.storefrontEnvProduction | nindent 4 }}
+  {{- end }}

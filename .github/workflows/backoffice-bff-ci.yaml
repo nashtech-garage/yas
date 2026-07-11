@@ -71,3 +71,13 @@ jobs:
           context: ./backoffice-bff
           push: true
           tags: ghcr.io/nashtech-garage/yas-backoffice-bff:latest
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/backoffice-bff/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 60
+          title: 'Backoffice-bff Coverage Report'
+          update-comment: true

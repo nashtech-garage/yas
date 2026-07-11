@@ -1,0 +1,20 @@
+baseUrl: /swagger-ui
+urls: "[{ url: 'http://backoffice.dev.yas.local.com/api/product/v3/api-docs', name: 'Product' },
+      { url: 'http://backoffice.dev.yas.local.com/api/media/v3/api-docs', name: 'Media' },
+      { url: 'http://backoffice.dev.yas.local.com/api/customer/v3/api-docs', name: 'Customer' },
+      { url: 'http://backoffice.dev.yas.local.com/api/cart/v3/api-docs', name: 'Cart' },
+      { url: 'http://backoffice.dev.yas.local.com/api/order/v3/api-docs', name: 'Order' },
+      { url: 'http://backoffice.dev.yas.local.com/api/inventory/v3/api-docs', name: 'Inventory' },
+      { url: 'http://backoffice.dev.yas.local.com/api/tax/v3/api-docs', name: 'Tax' },
+      { url: 'http://backoffice.dev.yas.local.com/api/search/v3/api-docs', name: 'Search' },
+      { url: 'http://backoffice.dev.yas.local.com/api/sampledata/v3/api-docs', name: 'Sampledata' }]"
+
+ingress:
+  enabled: true
+  className: "traefik"
+  host: backoffice.dev.yas.local.com
+  hosts:
+    - host: backoffice.dev.yas.local.com
+      paths:
+        - path: /swagger-ui
+          pathType: ImplementationSpecific

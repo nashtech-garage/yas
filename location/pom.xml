@@ -13,9 +13,6 @@
     <name>location</name>
     <description>YAS Location Service</description>
     <properties>
-        <sonar.organization>nashtech-garage</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.projectKey>nashtech-garage_yas-location</sonar.projectKey>
     </properties>
     <dependencies>
         <dependency>

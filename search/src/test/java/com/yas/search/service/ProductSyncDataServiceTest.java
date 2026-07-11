@@ -219,16 +219,13 @@ class ProductSyncDataServiceTest {
         verify(productRepository).deleteById(id);
     }
 
-    @Disabled
     @Test
-    void testDeleteProduct_whenProductDoesNotExist_throwsNotFoundException() {
+    void testDeleteProduct_whenProductDoesNotExist_doesNotThrowException() {
         Long id = 1L;
 
         when(productRepository.existsById(id)).thenReturn(false);
 
-        assertThatThrownBy(() -> productSyncDataService.deleteProduct(id))
-            .isInstanceOf(NotFoundException.class)
-            .hasMessageContaining("The product 1 is not found");
+        productSyncDataService.deleteProduct(id);
 
         verify(productRepository, never()).deleteById(id);
     }

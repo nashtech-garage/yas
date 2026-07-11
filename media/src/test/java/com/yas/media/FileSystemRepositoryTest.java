@@ -1,6 +1,8 @@
 package com.yas.media;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -106,6 +108,46 @@ class FileSystemRepositoryTest {
 
         assertThrows(IllegalStateException.class, () -> fileSystemRepository.getFile(filePathStr));
     }
+    @Test
+    void testPersistFile_whenFilenameContainsInvalidChars_thenThrowsException() {
+        String filename = "test/file.png";
+        byte[] content = "test".getBytes();
+        
+        File directory = new File(TEST_URL);
+        directory.mkdirs();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        
+        assertThrows(IllegalArgumentException.class, () -> fileSystemRepository.persistFile(filename, content));
+    }
 
+    @Test
+    void testPersistFile_whenDirectoryIsReadOnly_thenThrowsException() {
+        String filename = "test.png";
+        byte[] content = "test".getBytes();
+        
+        File directory = new File(TEST_URL);
+        directory.mkdirs();
+        directory.setReadOnly();
+        when(filesystemConfig.getDirectory()).thenReturn(TEST_URL);
+        
+        assertThrows(IllegalStateException.class, () -> fileSystemRepository.persistFile(filename, content));
+        directory.setWritable(true);
+    }
+
+    @Test
+    void testPersistFile_whenValid_thenSuccess() throws IOException {
+        String filename = "test.png";
+        byte[] content = "test".getBytes();
+        
+        File directory = new File(TEST_URL);
+        directory.mkdirs();
+        
+        String absoluteBase = Paths.get(TEST_URL).toAbsolutePath().normalize().toString();
+        when(filesystemConfig.getDirectory()).thenReturn(absoluteBase);
+        
+        String path = fileSystemRepository.persistFile(filename, content);
+        assertNotNull(path);
+        assertTrue(Files.exists(Paths.get(path)));
+    }
 }
 
