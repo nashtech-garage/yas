@@ -14,7 +14,7 @@ spec:
     helm:
       parameters:
         - name: backend.image.tag
-          value: '88f6c0b6'
+          value: '8b3e1df2'
         - name: backend.image.repository
           value: 'besukem/cart'
   destination:

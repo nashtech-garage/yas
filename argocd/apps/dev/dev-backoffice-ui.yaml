@@ -14,7 +14,7 @@ spec:
     helm:
       parameters:
         - name: ui.image.tag
-          value: '88f6c0b6'
+          value: '8b3e1df2'
         - name: ui.image.repository
           value: 'besukem/backoffice'
   destination:
