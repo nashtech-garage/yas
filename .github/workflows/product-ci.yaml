@@ -1,5 +1,10 @@
 name: product service ci
-#test 
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 on:
   push:
     branches: ["**"]
@@ -8,6 +13,7 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+
   pull_request:
     branches: ["main"]
     paths:
@@ -15,32 +21,38 @@ on:
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/product-ci.yaml"
       - "pom.xml"
+
   workflow_dispatch:
 
 jobs:
   test:
     name: Phase 1 - Test
     runs-on: ubuntu-latest
+
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
       - name: Set up Java and Maven cache
         uses: ./.github/workflows/actions
 
-      # Chỉ chạy unit test; không package/install ứng dụng trong phase này.
-      # jacoco:report tạo báo cáo coverage sau khi test hoàn tất.
-      - name: Run unit tests and generate coverage
-        run: mvn -B -ntp clean test jacoco:report -pl product -am
+      # Chạy unit test, tạo JaCoCo report và kiểm tra ngưỡng coverage.
+      # Nếu instruction coverage dưới 70%, lệnh này sẽ thất bại.
+      - name: Run unit tests and enforce 70 percent coverage
+        run: mvn -B -ntp clean verify -pl product -am
 
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        run: mvn -B -ntp checkstyle:checkstyle -pl product -am -Dcheckstyle.output.file=product-checkstyle-result.xml
+        run: >
+          mvn -B -ntp checkstyle:checkstyle
+          -pl product
+          -am
+          -Dcheckstyle.output.file=product-checkstyle-result.xml
 
       - name: Upload Checkstyle Result
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
@@ -48,9 +60,10 @@ jobs:
         with:
           path: "**/product-checkstyle-result.xml"
 
+      # Luôn upload report, kể cả khi test hoặc coverage thất bại.
       - name: Upload Test and Coverage Reports
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Product-Service-Reports
           path: |
@@ -60,21 +73,26 @@ jobs:
           retention-days: 7
 
       - name: Test Results
+        if: ${{ always() && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: dorny/test-reporter@v1
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         with:
           name: Product-Service-Unit-Test-Results
           path: "product/**/*-reports/TEST*.xml"
           reporter: java-junit
 
       - name: Analyze with SonarCloud
+        if: ${{ success() && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         continue-on-error: true
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -ntp org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f product
+        run: >
+          mvn -B -ntp
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -f product
 
+      # always() giúp report vẫn được comment lên PR khi coverage dưới 70%.
       - name: Add coverage report to PR
+        if: ${{ always() && github.event_name == 'pull_request' && env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: madrapps/jacoco-report@v1.6.1
         with:
           paths: ${{ github.workspace }}/product/target/site/jacoco/jacoco.xml
@@ -83,10 +101,13 @@ jobs:
           min-coverage-changed-files: 60
           title: "Product Coverage Report"
           update-comment: true
+          continue-on-error: false
 
   build:
     name: Phase 2 - Build
     runs-on: ubuntu-latest
+
+    # Phase Build chỉ chạy nếu toàn bộ Phase Test thành công.
     needs: test
 
     steps:
@@ -96,7 +117,6 @@ jobs:
       - name: Set up Java and Maven cache
         uses: ./.github/workflows/actions
 
-      # Chỉ package ứng dụng sau khi phase Test thành công; không chạy lại test.
       - name: Build Product service
         run: mvn -B -ntp clean package -pl product -am -DskipTests
 
