@@ -13,7 +13,11 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://identity/realms/Yas
+            authorization-uri: http://identity/realms/Yas/protocol/openid-connect/auth
+            token-uri: http://identity/realms/Yas/protocol/openid-connect/token
+            jwk-set-uri: http://identity/realms/Yas/protocol/openid-connect/certs
+            user-info-uri: http://identity/realms/Yas/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
         registration:
           api-client:
             provider: keycloak

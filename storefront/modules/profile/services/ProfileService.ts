@@ -3,7 +3,11 @@ import apiClientService from '@/common/services/ApiClientService';
 
 export async function getMyProfile() {
   const url = '/api/customer/storefront/customer/profile';
-  return (await apiClientService.get(url)).json();
+  const response = await apiClientService.get(url);
+  if (response.status === 401 || response.status === 403) {
+    return null;
+  }
+  return response.json();
 }
 
 export async function updateCustomer(profile: ProfileRequest) {

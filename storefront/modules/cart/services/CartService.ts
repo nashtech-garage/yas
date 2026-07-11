@@ -99,6 +99,11 @@ export async function updateCartItem(
 }
 
 async function throwDetailedError(response: Response) {
-  const errorResponse = await response.json();
-  throw new YasError(errorResponse);
+  try {
+    const errorResponse = await response.json();
+    throw new YasError(errorResponse);
+  } catch (e) {
+    if (e instanceof YasError) throw e;
+    throw new YasError({ status: response.status, title: response.statusText, detail: await response.text() });
+  }
 }

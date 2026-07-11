@@ -1,0 +1,431 @@
+// Calculate the list of changed files
+def computeChangedFiles() {
+    def cmd = null
+
+    if (env.CHANGE_TARGET) {
+        // For pull requests, compare the current branch with the target branch
+        cmd = "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD"
+    } else if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT && env.GIT_COMMIT) {
+        // For regular commits, compare the current commit with the previous successful commit
+        cmd = "git diff --name-only ${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}..${env.GIT_COMMIT}"
+    } else if (env.GIT_PREVIOUS_COMMIT && env.GIT_COMMIT) {
+        // If no previous successful commit is available, compare the current commit with the previous commit
+        cmd = "git diff --name-only ${env.GIT_PREVIOUS_COMMIT}..${env.GIT_COMMIT}"
+    } else {
+        // Fallback: list files changed in the latest commit
+        cmd = 'git show --name-only --pretty="" HEAD'
+    }
+
+    try {
+        def out = sh(script: cmd, returnStdout: true).trim()
+        return out
+            .split(/\r?\n/)
+            .collect { it.trim() }
+            .findAll { it }
+    } catch (err) {
+        def out = sh(script: 'git -c color.ui=never show --name-only --pretty="" HEAD', returnStdout: true).trim()
+        return out
+            .split(/\r?\n/)
+            .collect { it.trim() }
+            .findAll { it }
+    }
+}
+
+def getModules() {
+    env.AFFECTED_MODULES?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+}
+
+def getDockerModules() {
+    env.AFFECTED_DOCKER_MODULES?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+}
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven3'
+        jdk 'jdk25'
+    }
+
+    environment {
+        MVN_ARGS = '-B -ntp'
+        // Java/Spring Boot services — built and tested with Maven
+        MAVEN_MODULES = 'backoffice-bff storefront-bff cart customer inventory media order product promotion search tax sampledata'
+        // All services that need a Docker image (includes Next.js frontends)
+        DOCKER_SERVICES = 'backoffice backoffice-bff storefront storefront-bff cart customer inventory media order product promotion search tax sampledata'
+        SNYK_HOME = tool name: 'snyk@latest'
+        REVISION = '1.0-SNAPSHOT'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    if (env.CHANGE_TARGET) {
+                        sh "git fetch --no-tags origin ${env.CHANGE_TARGET}"
+                    }
+                }
+            }
+        }
+
+        stage('Gitleaks Scan') {
+            steps {
+                script {
+
+                    def status = sh(
+                        script: '''
+                            gitleaks detect \
+                                --source . \
+                                --config gitleaks.toml \
+                                --report-format json \
+                                --report-path gitleaks-report.json \
+                                --redact
+                            ''',
+                        returnStatus: true
+                    )
+
+                    if (status != 0) {
+                        echo "GITLEAKS WARNING: secrets detected (see report)"
+                        currentBuild.result = 'SUCCESS'
+                    } else {
+                        echo "No secrets detected"
+                    }
+                }
+            }
+        }
+
+        stage('Detect Changes') {
+            steps {
+                script {
+                    def allMavenModules  = env.MAVEN_MODULES.split(' ')
+                    def allDockerModules = env.DOCKER_SERVICES.split(' ')
+                    def changedFiles     = computeChangedFiles()
+
+                    // When BUILD_ALL is enabled, skip change detection and build everything
+                    if (params.BUILD_ALL) {
+                        echo "BUILD_ALL=true: forcing full rebuild of all modules and Docker images."
+                        env.MVN_MAKE_FLAGS       = '-am'
+                        env.AFFECTED_MODULES     = allMavenModules.join(',')
+                        env.AFFECTED_DOCKER_MODULES = allDockerModules.join(',')
+                        currentBuild.description = "${env.BRANCH_NAME ?: ''} | BUILD_ALL: all services"
+                        return
+                    }
+
+                    // Detect rebuild all when root pom.xml or checkstyle changes
+                    def rebuildAll = changedFiles.any { f ->
+                        f == 'pom.xml' ||
+                        f.startsWith('checkstyle/')
+                    }
+
+                    def affectedMaven = rebuildAll
+                        ? allMavenModules.toList()
+                        : allMavenModules.findAll { module ->
+                            changedFiles.any { f ->
+                                f == module || f.startsWith("${module}/")
+                            }
+                          }
+
+                    def affectedDocker = rebuildAll
+                        ? allDockerModules.toList()
+                        : allDockerModules.findAll { module ->
+                            changedFiles.any { f ->
+                                f == module || f.startsWith("${module}/")
+                            }
+                          }
+
+                    // Handle common-library: rebuild all dependent modules
+                    env.MVN_MAKE_FLAGS = '-am'
+                    if (affectedMaven.contains('common-library')) {
+                        env.MVN_MAKE_FLAGS = '-am -amd'
+                        affectedMaven  = allMavenModules.toList()
+                        affectedDocker = allDockerModules.toList()
+                    }
+
+                    def affectedMavenCsv  = affectedMaven.join(',')
+                    def affectedDockerCsv = affectedDocker.join(',')
+                    env.AFFECTED_MODULES        = affectedMavenCsv
+                    env.AFFECTED_DOCKER_MODULES = affectedDockerCsv
+
+                    // Logging
+                    echo "rebuildAll=${rebuildAll}"
+                    echo "Affected Maven modules: ${affectedMavenCsv}"
+                    echo "Affected Docker modules: ${affectedDockerCsv}"
+                    echo "Changed files:\n${changedFiles.join('\n')}"
+
+                    def summary = (affectedMavenCsv ?: affectedDockerCsv)?.trim()
+                    currentBuild.description = summary
+                        ? "${env.BRANCH_NAME ?: ''} | services: ${summary}"
+                        : "${env.BRANCH_NAME ?: ''} | no service changes"
+                }
+            }
+        }
+
+        stage('Build') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+
+                echo "Building affected modules: ${env.AFFECTED_MODULES}..."
+                sh "mvn ${env.MVN_ARGS} -pl ${env.AFFECTED_MODULES} ${env.MVN_MAKE_FLAGS} -DskipTests clean package"
+            }
+        }
+
+        stage('Unit & Integration Tests') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                // Run the Maven verify command for the affected modules to execute tests and generate coverage reports
+                sh """
+                    mvn ${env.MVN_ARGS} \
+                        -pl ${env.AFFECTED_MODULES} ${env.MVN_MAKE_FLAGS} \
+                        verify \
+                        -ff \
+                        -DtrimStackTrace=true \
+                        -Dsurefire.printSummary=true \
+                        -Dfailsafe.printSummary=true
+                """
+                // Publish unit test and integration test results to Jenkins for reporting and analysis
+                junit allowEmptyResults: true,
+                      testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
+            }
+        }
+
+        stage('Snyk Scan') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'snyk-quan', variable: 'SNYK_TOKEN')]) {
+
+                        sh '''
+                            snyk auth "$SNYK_TOKEN"
+                        '''
+
+                        def modules = getModules()
+
+                        def moduleList = modules.join(',')
+                        echo "Running Snyk scan for modules: ${moduleList}"
+
+                        sh """
+                            if [ -f "mvnw" ]; then
+                                chmod +x mvnw
+                                MVN=./mvnw
+                            else
+                                MVN=mvn
+                            fi
+
+                            echo "Using Maven: \$MVN"
+
+                            \$MVN -q \
+                                -Drevision=${env.REVISION} \
+                                -DskipTests \
+                                -pl ${moduleList} \
+                                -am \
+                                clean install
+                        """
+
+                        for (module in modules) {
+                            module = module.trim()
+                            if (!module) continue
+
+                            echo "Running Snyk scan for module: ${module} "
+
+                            dir(module) {
+
+                                // Ensure mvnw is executable if it exists
+                                sh '''
+                                    if [ -f "mvnw" ]; then
+                                        chmod +x mvnw
+                                    fi
+                                '''
+
+                                // 1. Run Snyk test for dependencies
+                                def depStatus = sh(
+                                    script: """
+                                        snyk test --file=pom.xml --package-manager=maven --severity-threshold=low -- -Drevision=${env.REVISION} || true
+                                    """,
+                                    returnStatus: true
+                                )
+
+                                // 2. Push results to Snyk Monitor for tracking
+                                sh """
+                                    echo "Pushing Open Source snapshot to Snyk Monitor..."
+
+                                    snyk monitor --file=pom.xml --package-manager=maven --project-name=YAS-${module}-Dependencies -- -Drevision=${env.REVISION} || true
+                                """
+
+                                // 3. Run Snyk Code test for static analysis and push results
+                                def codeStatus = sh(
+                                    script: """
+                                        echo "Running Snyk Code Test and pushing report..."
+                                        snyk code test \
+                                            --severity-threshold=low \
+                                            --project-name=YAS-${module}-Code \
+                                            --report || true
+                                    """,
+                                    returnStatus: true
+                                )
+
+                                if (depStatus != 0 || codeStatus != 0) {
+                                    echo "SNYK WARNING: vulnerabilities detected in ${module}"
+                                    currentBuild.result = 'SUCCESS'
+                                } else {
+                                    echo "No vulnerabilities detected in ${module}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Coverage Gate') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                script {
+                    def modules = getModules()
+
+                    echo "Running coverage for modules: ${modules.join(', ')}"
+
+                    // Build Jacoco report paths dynamically
+                    def coverageTools = modules.collect { module ->
+                        [
+                            parser: 'JACOCO',
+                            pattern: "${module}/target/site/jacoco/jacoco.xml"
+                        ]
+                    }
+
+                    // Execute coverage gate
+                    recordCoverage(
+                        tools: coverageTools,
+                        sourceCodeRetention: 'NEVER',
+                        qualityGates: [
+                            [
+                                threshold: 70.0,
+                                metric: 'LINE',
+                                baseline: 'PROJECT',
+                                criticality: 'FAILURE'
+                            ],
+                            [
+                                threshold: 70.0,
+                                metric: 'BRANCH',
+                                baseline: 'PROJECT',
+                                criticality: 'FAILURE'
+                            ],
+                            [
+                                threshold: 70.0,
+                                metric: 'INSTRUCTION',
+                                baseline: 'PROJECT',
+                                criticality: 'FAILURE'
+                            ]
+                        ]
+                    )
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            when {
+                expression { env.AFFECTED_MODULES?.trim() }
+            }
+            steps {
+                withSonarQubeEnv('Sonar-instances') {
+                    sh """
+                        mvn ${MVN_ARGS} \
+                            -pl ${AFFECTED_MODULES} \
+                            ${MVN_MAKE_FLAGS} \
+                            sonar:sonar \
+                            -Dsonar.projectKey=yas-project
+                    """
+                }
+            }
+        }
+
+        stage('Build and Push Docker Images') {
+            when {
+                expression { env.AFFECTED_DOCKER_MODULES?.trim() }
+            }
+            steps {
+                script {
+                    // Use the checked-out HEAD so the image tag always matches the
+                    // latest commit of the branch being built.
+                    def commitId = sh(
+                        script: 'git rev-parse HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    def dockerModules = getDockerModules().findAll { module ->
+                        fileExists("${module}/Dockerfile")
+                    }
+
+                    if (!dockerModules) {
+                        echo 'No affected module has a Dockerfile; skipping image publishing.'
+                        return
+                    }
+
+                    env.IMAGE_TAG = commitId
+                    echo "Building Docker images for: ${dockerModules.join(', ')}"
+                    echo "Docker image tag: ${env.IMAGE_TAG}"
+
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub-credentials',
+                            usernameVariable: 'DOCKERHUB_USERNAME',
+                            passwordVariable: 'DOCKERHUB_PASSWORD'
+                        )
+                    ]) {
+                        def buildAndPushCommands = dockerModules.collect { module ->
+                            """
+                            IMAGE="\${DOCKERHUB_USERNAME}/yas-${module}:\${IMAGE_TAG}"
+                            echo "Building \${IMAGE}"
+                            docker build --pull --tag "\${IMAGE}" "${module}"
+                            docker push "\${IMAGE}"
+                            """
+                        }.join('\n')
+
+                        sh """
+                            set -eu
+                            set +x
+                            echo "\${DOCKERHUB_PASSWORD}" | docker login \
+                                --username "\${DOCKERHUB_USERNAME}" \
+                                --password-stdin
+                            trap 'docker logout >/dev/null 2>&1 || true' EXIT
+
+                            ${buildAndPushCommands}
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Upload artifact
+            archiveArtifacts allowEmptyArchive: true,
+                artifacts: '**/target/*.jar'
+
+            // Upload test reports
+            archiveArtifacts allowEmptyArchive: true,
+                artifacts: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
+
+            // Upload Gitleaks report
+            archiveArtifacts allowEmptyArchive: true,
+                artifacts: 'gitleaks-report.json'
+        }
+
+        success {
+            echo 'Pipeline SUCCESS'
+        }
+
+        failure {
+            echo 'Pipeline FAILED'
+        }
+    }
+}

@@ -6,6 +6,7 @@ import static com.yas.commonlibrary.kafka.cdc.message.Operation.UPDATE;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+
 import com.yas.commonlibrary.kafka.cdc.message.ProductCdcMessage;
 import com.yas.commonlibrary.kafka.cdc.message.ProductMsgKey;
 import com.yas.search.kafka.consumer.ProductSyncDataConsumer;

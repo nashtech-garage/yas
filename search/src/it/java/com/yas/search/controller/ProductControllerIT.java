@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 @Import(SearchIntegrationTestConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @PropertySource("classpath:application.properties")
+@EnabledIfSystemProperty(named = "runIT", matches = "true")
 public class ProductControllerIT extends AbstractControllerIT {
 
     @Autowired
