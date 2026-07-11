@@ -60,7 +60,7 @@
         <org.keycloak.version>26.0.1</org.keycloak.version>
         <keycloak-spring-boot-starter.version>25.0.3</keycloak-spring-boot-starter.version>
         <commons-validator.version>1.9.0</commons-validator.version>
-        <org.elasticsearch.version>9.2.3</org.elasticsearch.version>
+        <org.elasticsearch.version>8.12.2</org.elasticsearch.version>
         <paypal-checkout-sdk.version>2.0.0</paypal-checkout-sdk.version>
         <testcontainers-keycloak.version>3.5.1</testcontainers-keycloak.version>
         <testcontainers.version>2.0.3</testcontainers.version>
@@ -368,6 +368,31 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

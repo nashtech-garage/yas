@@ -21,4 +21,11 @@
         <sonar.projectKey>nashtech-garage_yas-delivery</sonar.projectKey>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
