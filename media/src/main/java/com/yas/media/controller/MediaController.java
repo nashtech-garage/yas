@@ -91,6 +91,9 @@ public class MediaController {
     public ResponseEntity<InputStreamResource> getFile(@PathVariable Long id, @PathVariable String fileName) {
         MediaDto mediaDto = mediaService.getFile(id, fileName);
 
+        // Test Gitleaks scan
+        String aws_secret = "AKIAIMXFFAFAKEKEY123X+jhG762skalAQWERT";
+
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
             .contentType(mediaDto.getMediaType())
