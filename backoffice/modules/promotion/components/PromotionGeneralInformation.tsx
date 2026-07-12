@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
 import { DatePicker, Input, Select, Switch, TextArea } from '../../../common/items/Input';
 import { PromotionDetail, PromotionDto } from '../models/Promotion';
 import { searchBrands, searchCategories, searchProducts } from '../services/ProductService';
@@ -7,7 +7,7 @@ import MultipleAutoComplete from './MultipleAutoComplete';
 
 type Props = {
   register: UseFormRegister<PromotionDto>;
-  errors: FieldErrorsImpl<PromotionDto>;
+  errors: FieldErrors<PromotionDto>;
   setValue: UseFormSetValue<PromotionDto>;
   trigger: UseFormTrigger<PromotionDto>;
   promotion?: PromotionDetail;
@@ -72,8 +72,8 @@ const PromotionGeneralInformation = ({
     }
     return '';
   };
-  const validateDate = (otherDate: string, type: 'start' | 'end') => (value: string) => {
-    if (!otherDate) return true;
+  const validateDate = (otherDate: string, type: 'start' | 'end') => (value: any) => {
+    if (!otherDate || !value) return true;
     const currentDate = new Date(value);
     const comparisonDate = new Date(otherDate);
 

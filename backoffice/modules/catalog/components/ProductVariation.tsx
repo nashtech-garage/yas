@@ -465,10 +465,10 @@ const ProductVariations = ({ getValue, setValue }: Props) => {
           className="w-50"
           options={options}
           isClearable
-          isOptionDisabled={(option) =>
+          isOptionDisabled={(option: any) =>
             selectedOptions.find((t) => t.name === option.value.toString()) != null
           }
-          onChange={(option) => {
+          onChange={(option: any) => {
             if (option?.label) {
               setCurrentOption({
                 id: +option.value,

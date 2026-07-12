@@ -8,7 +8,7 @@ type InputProps<T extends FieldValues> = {
   register: UseFormRegister<T>;
   error?: string;
   type?: HTMLInputTypeAttribute;
-  registerOptions?: RegisterOptions;
+  registerOptions?: RegisterOptions<T, Path<T>>;
   defaultValue?: number | string | string[];
   disabled?: boolean;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;

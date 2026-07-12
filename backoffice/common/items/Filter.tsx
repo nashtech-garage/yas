@@ -1,9 +1,9 @@
 import React from 'react';
 import { Dropdown, Form } from 'react-bootstrap';
-import { Filter } from '../../modules/catalog/models/Filter';
+import type { Filter as FilterModel } from '../../modules/catalog/models/Filter';
 import styles from '../../styles/Filter.module.css';
 
-type Props = { filter: Filter };
+type Props = { filter: FilterModel };
 
 const Filter = ({ filter }: Props) => {
   return (

@@ -1,4 +1,13 @@
 tempo:
+  resources:
+    requests:
+#       cpu: 10m
+      memory: 64Mi
+    limits:
+#       cpu: 100m
+      memory: 128Mi
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://prometheus-kube-prometheus-prometheus:9090/api/v1/write"

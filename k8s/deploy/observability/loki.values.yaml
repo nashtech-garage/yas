@@ -1,22 +1,73 @@
 write:
   replicas: 1
+  resources:
+    requests:
+#       cpu: 10m
+      memory: 64Mi
+    limits:
+#       cpu: 100m
+      memory: 128Mi
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
+  persistence:
+    enabled: false
 read:
   replicas: 1
+  resources:
+    requests:
+#       cpu: 10m
+      memory: 64Mi
+    limits:
+#       cpu: 100m
+      memory: 128Mi
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
 backend:
   replicas: 1
+  resources:
+    requests:
+#       cpu: 10m
+      memory: 64Mi
+    limits:
+#       cpu: 100m
+      memory: 128Mi
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
+  persistence:
+    enabled: false
+gateway:
+  resources:
+    requests:
+#       cpu: 10m
+      memory: 32Mi
+    limits:
+#       cpu: 50m
+      memory: 64Mi
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
 loki:
   commonConfig:
     replication_factor: 1
   auth_enabled: false
+  storage:
+    bucketNames:
+      chunks: chunks
+      ruler: ruler
+      admin: admin
 test:
   enabled: false
 storage:
   type: 'filesystem'
 minio:
-  enabled: true
+  enabled: false
 
 monitoring:
   selfMonitoring:
     enabled: false
     grafanaAgent:
       installOperator: false
+
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false

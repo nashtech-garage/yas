@@ -1,0 +1,283 @@
+global:
+  domain: dev.yas.local.com
+product:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-product
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+cart:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-cart
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+order:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-order
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+customer:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-customer
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+inventory:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-inventory
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+tax:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-tax
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+media:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-media
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+    extraObjects:
+      - apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: media-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: do-block-storage
+          resources:
+            requests:
+              storage: 2Gi
+    extraVolumes:
+      - name: media-application
+        configMap:
+          name: media-application-configmap
+      - name: media-storage
+        persistentVolumeClaim:
+          claimName: media-pvc
+    extraVolumeMounts:
+      - name: media-application
+        mountPath: /opt/yas/media
+      - name: media-storage
+        mountPath: /images
+search:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-search
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+sampledata:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-sampledata
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+storefront-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-storefront-ui
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+    extraEnvs:
+      - name: API_BASE_PATH
+        value: "http://storefront-bff/api"
+backoffice-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-ui
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+storefront-bff:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-storefront-bff
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://storefront-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-dev"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: storefront.dev.yas.local.com
+backoffice-bff:
+  backend:
+    serviceMonitor:
+      enabled: false
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-bff
+      tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://backoffice-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-dev"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx128m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: backoffice.dev.yas.local.com
+swagger-ui:
+  image:
+    repository: ghcr.io/23122004/yas-swagger-ui
+    tag: 5743f587958268ea3ccd2d8d2dabe966a6e7fbc0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    host: api.dev.yas.local.com
+    hosts:
+      - host: api.dev.yas.local.com
+        paths:
+          - path: /swagger-ui
+            pathType: ImplementationSpecific
+  urls: "[{ url: 'http://api.dev.yas.local.com/product/v3/api-docs', name: 'Product' }, { url: 'http://api.dev.yas.local.com/media/v3/api-docs', name: 'Media' }, { url: 'http://api.dev.yas.local.com/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.dev.yas.local.com/cart/v3/api-docs', name: 'Cart'}, { url: 'http://api.dev.yas.local.com/order/v3/api-docs', name: 'Order'}, { url: 'http://api.dev.yas.local.com/inventory/v3/api-docs', name: 'Inventory'}, { url: 'http://api.dev.yas.local.com/tax/v3/api-docs', name: 'Tax' }, { url: 'http://api.dev.yas.local.com/search/v3/api-docs', name: 'Search'}]"
+yas-configuration:
+  mediaApplicationConfig:
+    server:
+      servlet:
+        context-path: /media
+    yas:
+      publicUrl: http://api.dev.yas.local.com/media

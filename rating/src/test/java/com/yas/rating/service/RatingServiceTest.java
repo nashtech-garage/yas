@@ -127,6 +127,21 @@ class RatingServiceTest {
     }
 
     @Test
+    void getRatingListWithFilter_EmptyResult_ShouldReturnEmptyList() {
+        String proName = "non_existent_product";
+        String cusName = "non existent name";
+        String message = "non existent message";
+        ZonedDateTime createdFrom = ZonedDateTime.now().minusDays(30);
+        ZonedDateTime createdTo = ZonedDateTime.now().plusDays(30);
+        int pageNo = 0;
+        int pageSize = 10;
+        RatingListVm actualResponse = ratingService.getRatingListWithFilter(proName, cusName, message, createdFrom, createdTo, pageNo, pageSize);
+        assertEquals(0, actualResponse.totalPages());
+        assertEquals(0, actualResponse.totalElements());
+        assertEquals(0, actualResponse.ratingList().size());
+    }
+
+    @Test
     void createRating_ValidRatingData_ShouldSuccess() {
         Jwt jwt = mock(Jwt.class);
         JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
@@ -161,6 +176,26 @@ class RatingServiceTest {
                 () -> ratingService.createRating(ratingPostVm));
 
         assertEquals("ACCESS_DENIED", exception.getMessage());
+    }
+
+    @Test
+    void createRating_CustomerNotFound_ShouldThrowNotFoundException() {
+        Jwt jwt = mock(Jwt.class);
+        JwtAuthenticationToken authentication = mock(JwtAuthenticationToken.class);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        when(authentication.getToken()).thenReturn(jwt);
+        when(authentication.getName()).thenReturn(userId);
+        when(jwt.getSubject()).thenReturn(userId);
+        when(orderService.checkOrderExistsByProductAndUserWithStatus(anyLong())).
+                thenReturn(new OrderExistsByProductAndUserGetVm(true));
+        when(customerService.getCustomer()).thenReturn(null);
+
+        RatingPostVm ratingPostVm = RatingPostVm.builder().content("comment 4").productName("product3").star(4).productId(3L).build();
+
+        NotFoundException exception = assertThrows(NotFoundException.class,
+                () -> ratingService.createRating(ratingPostVm));
+
+        assertEquals("CUSTOMER " + userId + " is not found", exception.getMessage());
     }
 
     @Test

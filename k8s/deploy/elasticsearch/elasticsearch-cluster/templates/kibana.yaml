@@ -3,7 +3,7 @@ kind: Kibana
 metadata:
   name: kibana
 spec:
-  version: 8.8.1
+  version: 9.2.3
   count: 1
   elasticsearchRef:
     name: elasticsearch
@@ -11,3 +11,17 @@ spec:
     tls:
       selfSignedCertificate:
         disabled: true
+  podTemplate:
+    spec:
+      tolerations:
+        - key: "node.kubernetes.io/memory-pressure"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: kibana
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi

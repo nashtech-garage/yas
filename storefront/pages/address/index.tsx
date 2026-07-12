@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
-import { Address } from '../../modules/address/models/AddressModel';
+import type { Address } from '../../modules/address/models/AddressModel';
 import { deleteAddress } from '../../modules/address/services/AddressService';
 import {
   chooseDefaultAddress,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
-import { UseFormGetValues, UseFormSetValue } from 'react-hook-form/dist/types';
+import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
 import { FormProduct } from '../models/FormProduct';

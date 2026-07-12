@@ -4,6 +4,13 @@ metadata:
   name: yas-realm-kc
 spec:
   keycloakCRName: keycloak
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
   realm:
     id: Yas
     realm: Yas
@@ -527,6 +534,8 @@ spec:
         secret: TVacLC0cQ8tiiEKiTVerTb2YvwQ1TRJF
         redirectUris:
           - {{ .Values.backofficeRedirectUrl }}/*
+          - http://backoffice.dev.yas.local.com/*
+          - http://backoffice.staging.yas.local.com/*
           - http://localhost:3000/*
           - http://localhost:8087/*
         webOrigins: [ ]
@@ -821,6 +830,8 @@ spec:
         secret: ZrU9I0q2uXBglBnmvyJdkl1lf0ncr8tn
         redirectUris:
           - {{ .Values.storefrontRedirectUrl }}/*
+          - http://storefront.dev.yas.local.com/*
+          - http://storefront.staging.yas.local.com/*
           - http://localhost:8087/*
         webOrigins: [ ]
         notBefore: 0
@@ -934,6 +945,8 @@ spec:
         clientAuthenticatorType: client-secret
         redirectUris:
           - http://api.yas.local.com/*
+          - http://api.dev.yas.local.com/*
+          - http://api.staging.yas.local.com/*
           - http://localhost:8080/*
           - http://localhost:8081/*
           - http://localhost:8083/*
@@ -948,6 +961,8 @@ spec:
           - http://localhost:8093/*
         webOrigins:
           - http://api.yas.local.com
+          - http://api.dev.yas.local.com
+          - http://api.staging.yas.local.com
           - http://localhost:8080
           - http://localhost:8081
           - http://localhost:8083

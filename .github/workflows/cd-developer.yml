@@ -1,0 +1,324 @@
+name: CD - Developer Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Deploy or cleanup the developer environment"
+        required: true
+        default: "deploy"
+        type: choice
+        options:
+          - deploy
+          - cleanup
+      developer_profile:
+        description: "Runtime profile for developer environment"
+        required: true
+        default: "lean"
+        type: choice
+        options:
+          - lean
+          - full
+      product_branch:
+        description: "Branch for product"
+        required: false
+        default: "main"
+      cart_branch:
+        description: "Branch for cart"
+        required: false
+        default: "main"
+      order_branch:
+        description: "Branch for order"
+        required: false
+        default: "main"
+      customer_branch:
+        description: "Branch for customer"
+        required: false
+        default: "main"
+      inventory_branch:
+        description: "Branch for inventory"
+        required: false
+        default: "main"
+      tax_branch:
+        description: "Branch for tax"
+        required: false
+        default: "main"
+      media_branch:
+        description: "Branch for media"
+        required: false
+        default: "main"
+      search_branch:
+        description: "Branch for search"
+        required: false
+        default: "main"
+      storefront_bff_branch:
+        description: "Branch for storefront-bff"
+        required: false
+        default: "main"
+      storefront_ui_branch:
+        description: "Branch for storefront-ui"
+        required: false
+        default: "main"
+      backoffice_bff_branch:
+        description: "Branch for backoffice-bff"
+        required: false
+        default: "main"
+      backoffice_ui_branch:
+        description: "Branch for backoffice-ui"
+        required: false
+        default: "main"
+      sampledata_branch:
+        description: "Branch for sampledata"
+        required: false
+        default: "main"
+      swagger_ui_branch:
+        description: "Branch for swagger-ui"
+        required: false
+        default: "main"
+
+permissions:
+  contents: read
+
+env:
+  NAMESPACE: yas-developer
+
+jobs:
+  deploy:
+    if: ${{ inputs.action == 'deploy' }}
+    runs-on: ubuntu-latest
+    environment: developer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Configure DOKS kubeconfig
+        run: doctl kubernetes cluster kubeconfig save "${{ vars.DOKS_CLUSTER_NAME }}"
+
+      - name: Deploy selected branch images
+        shell: bash
+        env:
+          GHCR_REGISTRY: ghcr.io/23122004
+          BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
+          DEVELOPER_PROFILE: ${{ inputs.developer_profile }}
+          PRODUCT_BRANCH: ${{ inputs.product_branch }}
+          CART_BRANCH: ${{ inputs.cart_branch }}
+          ORDER_BRANCH: ${{ inputs.order_branch }}
+          CUSTOMER_BRANCH: ${{ inputs.customer_branch }}
+          INVENTORY_BRANCH: ${{ inputs.inventory_branch }}
+          TAX_BRANCH: ${{ inputs.tax_branch }}
+          MEDIA_BRANCH: ${{ inputs.media_branch }}
+          SEARCH_BRANCH: ${{ inputs.search_branch }}
+          STOREFRONT_BFF_BRANCH: ${{ inputs.storefront_bff_branch }}
+          STOREFRONT_UI_BRANCH: ${{ inputs.storefront_ui_branch }}
+          BACKOFFICE_BFF_BRANCH: ${{ inputs.backoffice_bff_branch }}
+          BACKOFFICE_UI_BRANCH: ${{ inputs.backoffice_ui_branch }}
+          SAMPLEDATA_BRANCH: ${{ inputs.sampledata_branch }}
+          SWAGGER_UI_BRANCH: ${{ inputs.swagger_ui_branch }}
+        run: |
+          set -euo pipefail
+
+          BASE_DOMAIN="${BASE_DOMAIN:-yas.local.com}"
+          DEVELOPER_HOST="developer.${BASE_DOMAIN}"
+          BACKOFFICE_HOST="backoffice-developer.${BASE_DOMAIN}"
+          API_HOST="api-developer.${BASE_DOMAIN}"
+          DEVELOPER_PROFILE="${DEVELOPER_PROFILE:-lean}"
+          backend_common_args=()
+          ui_common_args=()
+          swagger_common_args=()
+
+          resolve_tag() {
+            local branch="$1"
+            if [ -z "$branch" ] || [ "$branch" = "main" ]; then
+              echo "latest"
+              return
+            fi
+
+            local sha
+            sha="$(git ls-remote --heads origin "$branch" | awk '{print $1}')"
+            if [ -z "$sha" ]; then
+              echo "Branch not found: $branch" >&2
+              exit 1
+            fi
+            echo "$sha"
+          }
+
+          helm_dependency_build() {
+            local chart="$1"
+            helm dependency build "./k8s/charts/${chart}" >/dev/null
+          }
+
+          configure_developer_profile() {
+            if [ "$DEVELOPER_PROFILE" = "lean" ]; then
+              kubectl label namespace "$NAMESPACE" istio-injection=disabled --overwrite
+              backend_common_args=(
+                --set-string "backend.podAnnotations.sidecar\\.istio\\.io/inject=false"
+                --set "backend.resources.requests.cpu=25m"
+                --set "backend.resources.requests.memory=96Mi"
+                --set "backend.resources.limits.cpu=500m"
+                --set "backend.resources.limits.memory=384Mi"
+                --set-string "backend.extraEnvs[0].name=JAVA_OPTS"
+                --set-string "backend.extraEnvs[0].value=-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+                --set "backend.terminationGracePeriodSeconds=10"
+                --set-string "backend.lifecycle.preStop.exec.command[0]=sh"
+                --set-string "backend.lifecycle.preStop.exec.command[1]=-c"
+                --set-string "backend.lifecycle.preStop.exec.command[2]=sleep 2"
+              )
+              ui_common_args=(
+                --set-string "ui.podAnnotations.sidecar\\.istio\\.io/inject=false"
+                --set "ui.resources.requests.cpu=5m"
+                --set "ui.resources.requests.memory=32Mi"
+                --set "ui.resources.limits.cpu=100m"
+                --set "ui.resources.limits.memory=96Mi"
+              )
+              swagger_common_args=(
+                --set-string "podAnnotations.sidecar\\.istio\\.io/inject=false"
+                --set "resources.requests.cpu=5m"
+                --set "resources.requests.memory=16Mi"
+                --set "resources.limits.cpu=50m"
+                --set "resources.limits.memory=64Mi"
+              )
+            else
+              kubectl label namespace "$NAMESPACE" istio-injection=enabled --overwrite
+            fi
+          }
+
+          deploy_backend() {
+            local release="$1"
+            local image="$2"
+            local tag="$3"
+            shift 3
+            helm_dependency_build "$release"
+            helm upgrade --install "$release" "./k8s/charts/${release}" \
+              --namespace "$NAMESPACE" \
+              --create-namespace \
+              --set "backend.image.repository=${GHCR_REGISTRY}/${image}" \
+              --set "backend.image.tag=${tag}" \
+              "${backend_common_args[@]}" \
+              "$@"
+          }
+
+          deploy_ui() {
+            local release="$1"
+            local image="$2"
+            local tag="$3"
+            shift 3
+            helm_dependency_build "$release"
+            helm upgrade --install "$release" "./k8s/charts/${release}" \
+              --namespace "$NAMESPACE" \
+              --create-namespace \
+              --set "ui.image.repository=${GHCR_REGISTRY}/${image}" \
+              --set "ui.image.tag=${tag}" \
+              "${ui_common_args[@]}" \
+              "$@"
+          }
+
+          deploy_swagger() {
+            local tag="$1"
+            helm upgrade --install swagger-ui ./k8s/charts/swagger-ui \
+              --namespace "$NAMESPACE" \
+              --create-namespace \
+              --set "image.repository=${GHCR_REGISTRY}/yas-swagger-ui" \
+              --set "image.tag=${tag}" \
+              --set "ingress.host=${API_HOST}" \
+              --set "ingress.hosts[0].host=${API_HOST}" \
+              --set "ingress.hosts[0].paths[0].path=/swagger-ui" \
+              --set "ingress.hosts[0].paths[0].pathType=ImplementationSpecific" \
+              "${swagger_common_args[@]}"
+          }
+
+          kubectl apply -f k8s/namespaces.yaml
+          configure_developer_profile
+
+          helm dependency build ./k8s/charts/yas-configuration >/dev/null
+          helm upgrade --install yas-configuration ./k8s/charts/yas-configuration \
+            --namespace "$NAMESPACE" \
+            --create-namespace
+
+          product_tag="$(resolve_tag "$PRODUCT_BRANCH")"
+          cart_tag="$(resolve_tag "$CART_BRANCH")"
+          order_tag="$(resolve_tag "$ORDER_BRANCH")"
+          customer_tag="$(resolve_tag "$CUSTOMER_BRANCH")"
+          inventory_tag="$(resolve_tag "$INVENTORY_BRANCH")"
+          tax_tag="$(resolve_tag "$TAX_BRANCH")"
+          media_tag="$(resolve_tag "$MEDIA_BRANCH")"
+          search_tag="$(resolve_tag "$SEARCH_BRANCH")"
+          storefront_bff_tag="$(resolve_tag "$STOREFRONT_BFF_BRANCH")"
+          storefront_ui_tag="$(resolve_tag "$STOREFRONT_UI_BRANCH")"
+          backoffice_bff_tag="$(resolve_tag "$BACKOFFICE_BFF_BRANCH")"
+          backoffice_ui_tag="$(resolve_tag "$BACKOFFICE_UI_BRANCH")"
+          sampledata_tag="$(resolve_tag "$SAMPLEDATA_BRANCH")"
+          swagger_ui_tag="$(resolve_tag "$SWAGGER_UI_BRANCH")"
+
+          deploy_backend product yas-product "$product_tag"
+          deploy_backend cart yas-cart "$cart_tag"
+          deploy_backend customer yas-customer "$customer_tag"
+          deploy_backend inventory yas-inventory "$inventory_tag"
+          deploy_backend media yas-media "$media_tag"
+          deploy_backend search yas-search "$search_tag"
+          deploy_backend tax yas-tax "$tax_tag"
+          deploy_backend order yas-order "$order_tag"
+          deploy_backend sampledata yas-sampledata "$sampledata_tag"
+          deploy_ui storefront-ui yas-storefront-ui "$storefront_ui_tag" \
+            --set "ui.extraEnvs[0].name=API_BASE_PATH" \
+            --set-string "ui.extraEnvs[0].value=http://${DEVELOPER_HOST}/api"
+          deploy_ui backoffice-ui yas-backoffice-ui "$backoffice_ui_tag"
+          deploy_backend storefront-bff yas-storefront-bff "$storefront_bff_tag" \
+            --set "backend.ingress.host=${DEVELOPER_HOST}" \
+            --set "backend.extraEnvs[1].name=SPRING_PROFILES_ACTIVE" \
+            --set "backend.extraEnvs[1].value=prod" \
+            --set "backend.extraEnvs[2].name=UI_HOST" \
+            --set "backend.extraEnvs[2].value=http://storefront-ui:3000"
+          deploy_backend backoffice-bff yas-backoffice-bff "$backoffice_bff_tag" \
+            --set "backend.ingress.host=${BACKOFFICE_HOST}" \
+            --set "backend.extraEnvs[1].name=SPRING_PROFILES_ACTIVE" \
+            --set "backend.extraEnvs[1].value=prod" \
+            --set "backend.extraEnvs[2].name=UI_HOST" \
+            --set "backend.extraEnvs[2].value=http://backoffice-ui:3000"
+          deploy_swagger "$swagger_ui_tag"
+
+          kubectl rollout status deployment -n "$NAMESPACE" --timeout=15m
+
+          lb_ip="$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+          {
+            echo "### Developer environment"
+            echo ""
+            echo "- Profile: ${DEVELOPER_PROFILE}"
+            echo "- Storefront: http://${DEVELOPER_HOST}"
+            echo "- Backoffice: http://${BACKOFFICE_HOST}"
+            echo "- Swagger UI: http://${API_HOST}/swagger-ui/index.html"
+            echo ""
+            echo "Hosts entries:"
+            echo "\`\`\`text"
+            echo "${lb_ip} ${DEVELOPER_HOST}"
+            echo "${lb_ip} ${BACKOFFICE_HOST}"
+            echo "${lb_ip} ${API_HOST}"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  cleanup:
+    if: ${{ inputs.action == 'cleanup' }}
+    runs-on: ubuntu-latest
+    environment: developer
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Configure DOKS kubeconfig
+        run: doctl kubernetes cluster kubeconfig save "${{ vars.DOKS_CLUSTER_NAME }}"
+
+      - name: Delete developer deployment
+        run: |
+          kubectl delete namespace "$NAMESPACE" --ignore-not-found=true
+          echo "Developer namespace ${NAMESPACE} cleaned up."

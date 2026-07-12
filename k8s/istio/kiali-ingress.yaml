@@ -1,0 +1,23 @@
+# Exposes the Kiali dashboard through the NGINX ingress controller.
+# Add to your hosts file:  <LOAD_BALANCER_IP> kiali.yas.local.com
+# Then open:               http://kiali.yas.local.com
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kiali
+  namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: kiali.yas.local.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kiali
+                port:
+                  number: 20001

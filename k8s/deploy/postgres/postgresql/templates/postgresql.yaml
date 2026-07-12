@@ -23,7 +23,7 @@ spec:
   volume:
     size: {{ .Values.volumeSize }}
   users:
-    {{ .Values.username }}:
+    {{ .Values.username | quote }}:
       - superuser
       - inherit
       - login
@@ -43,8 +43,8 @@ spec:
     promotion: {{ .Values.username }}
     rating: {{ .Values.username }}
     tax: {{ .Values.username }}
-    recommendation: { { .Values.username } }
-    webhook: { { .Values.username } }
+    recommendation: {{ .Values.username }}
+    webhook: {{ .Values.username }}
     grafana: {{ .Values.username }}
   patroni:
     slots:

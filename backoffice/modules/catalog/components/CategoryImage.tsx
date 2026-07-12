@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { uploadMedia } from '../services/MediaService';
 import { isValidFile, validTypes } from './ChooseThumbnail';
 import ChooseImageCommon from '../../../common/components/ChooseImageCommon';
-import { UseFormSetValue } from 'react-hook-form/dist/types';
+import { UseFormSetValue } from 'react-hook-form';
 import { Category } from '../models/Category';
 
 type CategoryImageProps = {
