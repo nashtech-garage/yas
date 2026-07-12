@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -81,6 +82,19 @@ class PaymentServiceTest {
         verifyPaymentCreation(capturePaymentResponseVm);
         verifyOrderServiceInteractions(capturedPayment);
         verifyResult(capturedPayment, capturePaymentResponseVm);
+    }
+
+    @Test
+    void initPayment_UnsupportedMethod_ShouldThrowException() {
+        InitPaymentRequestVm request = InitPaymentRequestVm.builder()
+                .paymentMethod("UNKNOWN_METHOD")
+                .totalPrice(BigDecimal.TEN)
+                .build();
+                
+        // Đổi từ BadRequestException sang IllegalArgumentException
+        assertThrows(IllegalArgumentException.class, () -> {
+            paymentService.initPayment(request);
+        });
     }
 
     private CapturedPayment prepareCapturedPayment() {

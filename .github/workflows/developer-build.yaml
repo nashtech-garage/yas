@@ -1,0 +1,170 @@
+name: developer_build
+
+on:
+  workflow_dispatch:
+    inputs:
+      service_name:
+        description: 'Tên microservice muốn deploy/cleanup'
+        required: true
+        type: choice
+        options:
+          - backoffice-bff
+          - backoffice-ui
+          - cart
+          - customer
+          - inventory
+          - location
+          - media
+          - order
+          - payment
+          - payment-paypal
+          - product
+          - promotion
+          - rating
+          - recommendation
+          - sampledata
+          - search
+          - storefront-bff
+          - storefront-ui
+          - tax
+          - webhook
+      branch_name:
+        description: 'Tên nhánh của service cần build/test (vd: feature/test-cd-cart)'
+        required: true
+        default: 'main'
+      action:
+        description: 'Hành động thực hiện'
+        required: true
+        type: choice
+        options:
+          - Deploy
+          - Cleanup
+        default: 'Deploy'
+
+jobs:
+  developer-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          fetch-depth: 0
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Run Cleanup Action
+        if: github.event.inputs.action == 'Cleanup'
+        run: |
+          helm uninstall ${{ github.event.inputs.service_name }} --namespace yas || echo "Service not found or already deleted"
+
+      - name: Set service variables
+        if: github.event.inputs.action == 'Deploy'
+        id: vars
+        run: |
+          service="${{ github.event.inputs.service_name }}"
+          echo "Selected service: $service"
+          
+          # Default mappings
+          folder="$service"
+          type="java"
+          image_repo="yas-$service"
+          
+          if [ "$service" = "backoffice-ui" ]; then
+            folder="backoffice"
+            type="node"
+            image_repo="yas-backoffice"
+          elif [ "$service" = "storefront-ui" ]; then
+            folder="storefront"
+            type="node"
+            image_repo="yas-storefront"
+          fi
+          
+          echo "folder=$folder" >> $GITHUB_OUTPUT
+          echo "type=$type" >> $GITHUB_OUTPUT
+          echo "image_repo=$image_repo" >> $GITHUB_OUTPUT
+          
+          # Get commit SHA
+          sha=$(git rev-parse --short HEAD)
+          echo "sha=$sha" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Set up JDK 21
+        if: github.event.inputs.action == 'Deploy' && steps.vars.outputs.type == 'java'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build Java application
+        if: github.event.inputs.action == 'Deploy' && steps.vars.outputs.type == 'java'
+        run: mvn clean install -pl ${{ steps.vars.outputs.folder }} -am -DskipTests
+
+      - name: Setup Node.js
+        if: github.event.inputs.action == 'Deploy' && steps.vars.outputs.type == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Node application
+        if: github.event.inputs.action == 'Deploy' && steps.vars.outputs.type == 'node'
+        run: |
+          npm ci
+          npm run build
+        working-directory: ${{ steps.vars.outputs.folder }}
+
+      - name: Log in to Docker Hub
+        if: github.event.inputs.action == 'Deploy'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        if: github.event.inputs.action == 'Deploy'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ steps.vars.outputs.folder }}
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_repo }}:${{ steps.vars.outputs.sha }}
+
+      - name: Deploy to Azure K3s
+        if: github.event.inputs.action == 'Deploy'
+        run: |
+          # Load domain from config
+          DOMAIN=$(yq -r '.domain' ./k8s/deploy/cluster-config.yaml)
+          echo "Domain is: $DOMAIN"
+          
+          # Deploy common config first
+          helm dependency update ./k8s/charts/yas-configuration
+          helm upgrade --install yas-config ./k8s/charts/yas-configuration --namespace yas
+          
+          # Update dependencies for selected chart
+          helm dependency update ./k8s/charts/${{ github.event.inputs.service_name }}
+          
+          # Deploy selected chart
+          if [ "${{ steps.vars.outputs.type }}" = "node" ]; then
+            helm upgrade --install ${{ github.event.inputs.service_name }} ./k8s/charts/${{ github.event.inputs.service_name }} \
+              --namespace yas --create-namespace \
+              --set ui.image.repository=${{ secrets.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_repo }} \
+              --set ui.image.tag=${{ steps.vars.outputs.sha }}
+          else
+            # Determine Ingress Host
+            ingress_host="api.$DOMAIN"
+            if [ "${{ github.event.inputs.service_name }}" = "backoffice-bff" ]; then
+              ingress_host="backoffice.$DOMAIN"
+            elif [ "${{ github.event.inputs.service_name }}" = "storefront-bff" ]; then
+              ingress_host="storefront.$DOMAIN"
+            fi
+            
+            helm upgrade --install ${{ github.event.inputs.service_name }} ./k8s/charts/${{ github.event.inputs.service_name }} \
+              --namespace yas --create-namespace \
+              --set backend.image.repository=${{ secrets.DOCKER_USERNAME }}/${{ steps.vars.outputs.image_repo }} \
+              --set backend.image.tag=${{ steps.vars.outputs.sha }} \
+              --set backend.ingress.host="$ingress_host"
+          fi

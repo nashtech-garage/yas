@@ -2,6 +2,7 @@ package com.yas.payment.service;
 
 import static com.yas.payment.util.SecurityContextUtils.setUpSecurityContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -108,4 +109,27 @@ class OrderServiceTest {
         assertThat(result.paymentId()).isEqualTo(78910L);
         assertThat(result.paymentStatus()).isEqualTo("SUCCESS");
     }
+
+    @Test
+    void testUpdateCheckoutStatus_whenApiReturnsError_shouldHandleException() {
+        // Giả lập RestClient trả về lỗi thay vì trả về 1L
+        when(responseSpec.body(Long.class)).thenThrow(new RuntimeException("API Down"));
+
+        assertThrows(RuntimeException.class, () -> {
+            orderService.updateCheckoutStatus(prepareCapturedPayment());
+        });
+    }
+
+    private CapturedPayment prepareCapturedPayment() {
+    return CapturedPayment.builder()
+        .orderId(12345L)
+        .checkoutId("checkout-1234")
+        .amount(new BigDecimal("99.99"))
+        .paymentFee(new BigDecimal("2.50"))
+        .gatewayTransactionId("txn-67890")
+        .paymentMethod(PaymentMethod.COD)
+        .paymentStatus(PaymentStatus.COMPLETED)
+        .failureMessage(null)
+        .build();
+}
 }

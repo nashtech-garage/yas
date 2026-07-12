@@ -3,30 +3,39 @@ version: "3.9"
 services:
   search:
     build: ./search
-    image: ghcr.io/nashtech-garage/yas-search:latest
-    entrypoint: [ "./wait-for-it.sh", "elasticsearch:9200", "--timeout=300", "--", "java", "-jar", "/app.jar" ]
+    image: ghcr.io/vybui13/yas-search:latest
+    entrypoint:
+      [
+        "./wait-for-it.sh",
+        "elasticsearch:9200",
+        "--timeout=300",
+        "--",
+        "java",
+        "-jar",
+        "/app.jar",
+      ]
     environment:
-    - SERVER_SERVLET_CONTEXT_PATH=/search
-    - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/search
-    - YAS_SERVICES_PRODUCT
-    - SERVER_PORT
-    - LOGGING_CONFIG
-    - JAVA_TOOL_OPTIONS
-    - OTEL_EXPORTER_OTLP_ENDPOINT
-    - OTEL_EXPORTER_OTLP_PROTOCOL
-    - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
-    - OTEL_RESOURCE_ATTRIBUTES
-    - OTEL_SERVICE_NAME=search-service
-    - OTEL_LOGS_EXPORTER
-    - OTEL_TRACES_EXPORTER
-    - OTEL_METRICS_EXPORTER
-    - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
-    - OTEL_JAVAAGENT_LOGGING
-    - OTEL_JAVAAGENT_ENABLED
-    - OTEL_JAVAAGENT_DEBUG
+      - SERVER_SERVLET_CONTEXT_PATH=/search
+      - YAS_PUBLIC_URL=${YAS_PUBLIC_API_URL}/search
+      - YAS_SERVICES_PRODUCT
+      - SERVER_PORT
+      - LOGGING_CONFIG
+      - JAVA_TOOL_OPTIONS
+      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_PROTOCOL
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=search-service
+      - OTEL_LOGS_EXPORTER
+      - OTEL_TRACES_EXPORTER
+      - OTEL_METRICS_EXPORTER
+      - OTEL_INSTRUMENTATION_LOGBACK-MDC_ADD-BAGGAGE
+      - OTEL_JAVAAGENT_LOGGING
+      - OTEL_JAVAAGENT_ENABLED
+      - OTEL_JAVAAGENT_DEBUG
     volumes:
-    - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
-    - ./deployment/app-config:/app-config
+      - ./docker/libs/opentelemetry-javaagent.jar:/opentelemetry-javaagent.jar
+      - ./deployment/app-config:/app-config
     networks:
       - yas-network
   elasticsearch:

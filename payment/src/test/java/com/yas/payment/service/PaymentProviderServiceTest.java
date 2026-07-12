@@ -158,7 +158,7 @@ class PaymentProviderServiceTest {
         List<PaymentProviderVm> result = paymentProviderService.getEnabledPaymentProviders(defaultPageable);
 
         assertThat(result).hasSize(1);
-        assertThat(result.getFirst().getId()).isEqualTo(paymentProvider.getId());
+        assertThat(result.get(0).getId()).isEqualTo(paymentProvider.getId());
         verify(paymentProviderRepository, times(1)).findByEnabledTrue(defaultPageable);
     }
 

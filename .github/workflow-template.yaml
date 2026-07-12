@@ -56,4 +56,4 @@ jobs:
         with:
           context: ./{{SERVICE_NAME}}
           push: true
-          tags: ghcr.io/nashtech-garage/yas-{{SERVICE_NAME}}:latest
+          tags: ghcr.io/vybui13/yas-{{SERVICE_NAME}}:latest

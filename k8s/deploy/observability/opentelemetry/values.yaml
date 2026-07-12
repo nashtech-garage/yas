@@ -12,7 +12,7 @@ opentelemetryCollectorConfig:
           endpoint: 0.0.0.0:3500
       use_incoming_timestamp: true
   processors:
-    batch:
+    batch: {}
     attributes:
       actions:
         - action: insert

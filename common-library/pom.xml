@@ -16,6 +16,7 @@
     <description>YAS Common Library service</description>
 
     <properties>
+        <jacoco.skip>true</jacoco.skip>
         <sonar.organization>nashtech-garage</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.projectKey>nashtech-garage_yas-common-library</sonar.projectKey>

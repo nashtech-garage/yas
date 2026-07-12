@@ -1,0 +1,34 @@
+name: Deploy PostgreSQL Database
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  deploy-database:
+    name: Deploy Postgres to Azure K3s
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy PostgreSQL Operator and Database using Helm
+        run: |
+          # 1. Add Zalando Helm Repository
+          helm repo add postgres-operator-charts https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+          helm repo update
+          
+          # 2. Install PostgreSQL Operator
+          helm upgrade --install postgres-operator postgres-operator-charts/postgres-operator \
+            --create-namespace --namespace postgres
+          
+          # 3. Deploy PostgreSQL Cluster
+          helm dependency update ./k8s/deploy/postgres/postgresql
+          helm upgrade --install postgres ./k8s/deploy/postgres/postgresql \
+            --create-namespace --namespace postgres
