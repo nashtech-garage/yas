@@ -1,6 +1,6 @@
 backend:
   image:
-    repository: ghcr.io/nashtech-garage/yas-recommendation
+    repository: nguyenmanhha/yas-recommendation
     tag: latest
 
   nameOverride: recommendation

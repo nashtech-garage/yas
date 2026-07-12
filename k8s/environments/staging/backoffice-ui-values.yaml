@@ -1,8 +1,7 @@
 ui:
   image:
     repository: nguyenmanhha/yas-backoffice
-    tag: latest
-  nameOverride: backoffice-ui
-  fullnameOverride: backoffice-ui
+    tag: main
+
   ingress:
     enabled: false

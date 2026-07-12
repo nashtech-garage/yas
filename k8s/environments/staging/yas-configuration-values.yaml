@@ -1,0 +1,14 @@
+hosts:
+  api: api.staging.yas.local.com
+
+mediaApplicationConfig:
+  server:
+    servlet:
+      context-path: /media
+  yas:
+    publicUrl: http://api.staging.yas.local.com/media
+
+paymentPaypalApplicationConfig:
+  yas:
+    public:
+      url: http://storefront.staging.yas.local.com/complete-payment

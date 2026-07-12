@@ -1,7 +1,7 @@
 ui:
   image:
-    repository: ghcr.io/nashtech-garage/yas-storefront
-    tag: latest
+    repository: nguyenmanhha/yas-storefront
+    tag: main
   nameOverride: storefront-ui
   fullnameOverride: storefront-ui
 #  extraVolumes:

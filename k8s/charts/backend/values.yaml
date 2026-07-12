@@ -50,6 +50,13 @@ extraEnvs: []
 #  - name: EXTRA_VARIABLE_NAME
 #    value: extra variable data
 
+javaToolOptions: "-Xms128m -Xmx512m"
+
+hostAliases: []
+#  - ip: "192.168.49.2"
+#    hostnames:
+#      - identity.yas.local.com
+
 extraEnvFroms: []
 #  - secretRef:
 #      name: secret-name-extra
@@ -88,8 +95,17 @@ lifecycle:
 
 terminationGracePeriodSeconds: 45
 
+startupProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: metric
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 90
+
 livenessProbe:
   periodSeconds: 10
+  timeoutSeconds: 5
   failureThreshold: 12
   successThreshold: 1
   httpGet:
@@ -98,7 +114,8 @@ livenessProbe:
 
 readinessProbe:
   periodSeconds: 10
-  failureThreshold: 12
+  timeoutSeconds: 5
+  failureThreshold: 18
   successThreshold: 1
   httpGet:
     path: /actuator/health/readiness

@@ -38,7 +38,7 @@ helm upgrade --install pgadmin ./postgres/pgadmin \
 
 #Install strimzi-kafka-operator
 helm upgrade --install kafka-operator strimzi/strimzi-kafka-operator \
---create-namespace --namespace kafka
+--version 0.45.2 --create-namespace --namespace kafka
 
 #Install kafka and postgresql connector
 helm upgrade --install kafka-cluster ./kafka/kafka-cluster \

@@ -25,32 +25,44 @@ spec:
       labels:
         {{- include "backend.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
       serviceAccountName: {{ include "backend.serviceAccountName" . }}
+
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
       volumes:
         - name: yas-configuration
           configMap:
             name: yas-configuration-configmap
-        {{- with .Values.extraVolumes}}
+        {{- with .Values.extraVolumes }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
+
       containers:
         - name: {{ include "backend.fullname" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           envFrom:
             - secretRef:
                 name: yas-postgresql-credentials-secret
             {{- with .Values.extraEnvFroms }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
+
           env:
             - name: LOGGING_CONFIG
               value: {{ .Values.logbackXmlPath }}
@@ -63,38 +75,58 @@ spec:
             - name: SPRING_CONFIG_ADDITIONAL_LOCATION
               value: /opt/yas/config/application.yaml
             {{- end }}
+            {{- if .Values.javaToolOptions }}
+            - name: JAVA_TOOL_OPTIONS
+              value: {{ .Values.javaToolOptions | quote }}
+            {{- end }}
+
             {{- with .Values.extraEnvs }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
+
           volumeMounts:
             - mountPath: /opt/yas/config
               name: yas-configuration
             {{- with .Values.extraVolumeMounts }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
+
           ports:
             - name: http
               containerPort: {{ .Values.httpPort }}
               protocol: TCP
             - name: metric
               containerPort: {{ .Values.metricPort }}
+
           lifecycle:
-            {{ toYaml .Values.lifecycle | nindent 12 }}
+            {{- toYaml .Values.lifecycle | nindent 12 }}
+
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
+
           readinessProbe:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
+
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
