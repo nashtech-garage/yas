@@ -1,0 +1,264 @@
+global:
+  domain: staging.yas.local.com
+product:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-product
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+cart:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-cart
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+order:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-order
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+customer:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-customer
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+inventory:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-inventory
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+tax:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-tax
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+media:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-media
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+    extraObjects:
+      - apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: media-pvc
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: do-block-storage
+          resources:
+            requests:
+              storage: 2Gi
+    extraVolumes:
+      - name: media-application
+        configMap:
+          name: media-application-configmap
+      - name: media-storage
+        persistentVolumeClaim:
+          claimName: media-pvc
+    extraVolumeMounts:
+      - name: media-application
+        mountPath: /opt/yas/media
+      - name: media-storage
+        mountPath: /images
+search:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-search
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+sampledata:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-sampledata
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+storefront-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-storefront-ui
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+    extraEnvs:
+      - name: API_BASE_PATH
+        value: "http://storefront-bff/api"
+backoffice-ui:
+  ui:
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-ui
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+storefront-bff:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-storefront-bff
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://storefront-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-staging"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: storefront.staging.yas.local.com
+backoffice-bff:
+  backend:
+    image:
+      repository: ghcr.io/23122004/yas-backoffice-bff
+      tag: v1.0.0
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    extraEnvs:
+      - name: SPRING_PROFILES_ACTIVE
+        value: prod
+      - name: UI_HOST
+        value: "http://backoffice-ui:3000"
+      - name: SPRING_CLOUD_GATEWAY_ROUTES_0_URI
+        value: "http://nginx-staging"
+      - name: JAVA_OPTS
+        value: "-Xms32m -Xmx160m -XX:MaxRAMPercentage=65.0"
+    ingress:
+      host: backoffice.staging.yas.local.com
+swagger-ui:
+  image:
+    repository: ghcr.io/23122004/yas-swagger-ui
+    tag: v1.0.0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 50m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    host: api.staging.yas.local.com
+    hosts:
+      - host: api.staging.yas.local.com
+        paths:
+          - path: /swagger-ui
+            pathType: ImplementationSpecific
+  urls: "[{ url: 'http://api.staging.yas.local.com/product/v3/api-docs', name: 'Product' }, { url: 'http://api.staging.yas.local.com/media/v3/api-docs', name: 'Media' }, { url: 'http://api.staging.yas.local.com/customer/v3/api-docs', name: 'Customer' }, { url: 'http://api.staging.yas.local.com/cart/v3/api-docs', name: 'Cart'}, { url: 'http://api.staging.yas.local.com/order/v3/api-docs', name: 'Order'}, { url: 'http://api.staging.yas.local.com/inventory/v3/api-docs', name: 'Inventory'}, { url: 'http://api.staging.yas.local.com/tax/v3/api-docs', name: 'Tax' }, { url: 'http://api.staging.yas.local.com/search/v3/api-docs', name: 'Search'}]"
+
+yas-configuration:
+  mediaApplicationConfig:
+    server:
+      servlet:
+        context-path: /media
+    yas:
+      publicUrl: http://api.staging.yas.local.com/media
+
+

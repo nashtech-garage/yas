@@ -1,0 +1,12 @@
+# STAGING mesh demo — flip namespace default from PERMISSIVE to STRICT.
+# This overrides the existing "default-strict-mtls" (same name) in `staging`.
+# The 3 BFF/swagger PERMISSIVE public-entrypoint overrides already exist in
+# staging and stay in effect so ingress -> BFF keeps working.
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: staging
+spec:
+  mtls:
+    mode: STRICT

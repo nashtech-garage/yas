@@ -53,7 +53,10 @@ const TaxClassEdit: NextPage = () => {
             router.push(TAX_CLASS_URL).catch((error) => console.log(error));
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          setLoading(false);
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -77,7 +80,7 @@ const TaxClassEdit: NextPage = () => {
             <button className="btn btn-primary" type="submit">
               Save
             </button>
-            <Link href="tax/tax-classes">
+            <Link href={TAX_CLASS_URL}>
               <button className="btn btn-primary" style={{ background: 'red', marginLeft: '30px' }}>
                 Cancel
               </button>

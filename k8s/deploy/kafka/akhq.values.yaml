@@ -21,3 +21,28 @@ ingress:
   hosts:
     - *hostname
   tls: []
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 15
+  timeoutSeconds: 5
+readinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 15
+  timeoutSeconds: 5
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: NotIn
+              values:
+                - pool-ij7dmpaq8-3cbimb

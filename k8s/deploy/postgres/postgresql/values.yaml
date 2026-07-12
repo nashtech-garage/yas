@@ -7,7 +7,7 @@ maxConnections: "500"
 resources:
   requests:
     cpu: 100m
-    memory: 100Mi
+    memory: 256Mi
   limits:
     cpu: 500m
-    memory: 500Mi
+    memory: 768Mi

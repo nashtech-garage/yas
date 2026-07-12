@@ -2,7 +2,65 @@ hostname: &hostname grafana.yas.local.com
 prometheus:
   prometheusSpec:
     enableRemoteWriteReceiver: true
+    storageSpec:
+      emptyDir:
+        medium: ""
+    resources:
+      requests:
+        memory: 256Mi
+        #         cpu: 50m
+      limits:
+        memory: 512Mi
+        #         cpu: 500m
+    nodeSelector:
+      doks.digitalocean.com/node-pool: devops-project02-mem-opt
+    tolerations:
+      - key: "node.kubernetes.io/memory-pressure"
+        operator: "Exists"
+        effect: "NoSchedule"
+alertmanager:
+  alertmanagerSpec:
+    storageSpec:
+      emptyDir:
+        medium: ""
+    resources:
+      requests:
+        memory: 64Mi
+        #         cpu: 10m
+      limits:
+        memory: 128Mi
+        #         cpu: 100m
+    nodeSelector:
+      doks.digitalocean.com/node-pool: devops-project02-mem-opt
+    tolerations:
+      - key: "node.kubernetes.io/memory-pressure"
+        operator: "Exists"
+        effect: "NoSchedule"
 grafana:
+  assertNoLeakedSecrets: false
+  livenessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 10
+    failureThreshold: 30
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 10
+  resources:
+    requests:
+      memory: 128Mi
+      #       cpu: 50m
+    limits:
+      memory: 256Mi
+      #       cpu: 500m
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
+  tolerations:
+    - key: "node.kubernetes.io/memory-pressure"
+      operator: "Exists"
+      effect: "NoSchedule"
   grafana.ini:
     database:
       type: postgres
@@ -13,8 +71,87 @@ grafana:
       ssl_mode: require
   adminUser: admin
   adminPassword: admin
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki-gateway.observability.svc.cluster.local
+      jsonData:
+        derivedFields:
+          - datasourceUid: tempo
+            matcherRegex: "traceID=(\\w+)"
+            name: TraceID
+            url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      access: proxy
+      uid: tempo
+      url: http://tempo.observability.svc.cluster.local:3200
+      jsonData:
+        tracesToLogs:
+          datasourceUid: loki
+          filterByTraceID: true
+        serviceMap:
+          datasourceUid: prometheus
+        nodeGraph:
+          enabled: true
   ingress:
     ingressClassName: nginx
     enabled: true
     hosts:
       - *hostname
+  grafana:
+    ini:
+      database:
+        user: yasadminuser
+        password: admin
+prometheusOperator:
+  resources:
+    requests:
+      memory: 64Mi
+      #       cpu: 10m
+    limits:
+      memory: 128Mi
+      #       cpu: 100m
+  nodeSelector:
+    doks.digitalocean.com/node-pool: devops-project02-mem-opt
+  tolerations:
+    - key: "node.kubernetes.io/memory-pressure"
+      operator: "Exists"
+      effect: "NoSchedule"
+  admissionWebhooks:
+    patch:
+      tolerations:
+        - key: "node.kubernetes.io/memory-pressure"
+          operator: "Exists"
+          effect: "NoSchedule"
+  livenessProbe:
+    timeoutSeconds: 10
+    initialDelaySeconds: 30
+  readinessProbe:
+    timeoutSeconds: 10
+    initialDelaySeconds: 30
+kube-state-metrics:
+  resources:
+    requests:
+      memory: 128Mi
+      #       cpu: 50m
+    limits:
+      memory: 256Mi
+      #       cpu: 150m
+  livenessProbe:
+    initialDelaySeconds: 30
+    timeoutSeconds: 5
+  readinessProbe:
+    initialDelaySeconds: 30
+    timeoutSeconds: 5
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                  - pool-ij7dmpaq8-3cbimb

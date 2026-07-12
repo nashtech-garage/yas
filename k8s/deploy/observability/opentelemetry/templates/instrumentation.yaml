@@ -1,0 +1,26 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: yas-instrumentation
+spec:
+  exporter:
+    endpoint: http://opentelemetry-collector.observability.svc.cluster.local:4317
+  propagators:
+    - tracecontext
+    - baggage
+    - b3
+  java:
+    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-java:2.6.0
+    env:
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: "service.namespace=yas-msa"
+      - name: OTEL_METRICS_EXPORTER
+        value: "otlp"
+      - name: OTEL_TRACES_EXPORTER
+        value: "otlp"
+      - name: OTEL_LOGS_EXPORTER
+        value: "otlp"
+      - name: OTEL_EXPORTER_OTLP_PROTOCOL
+        value: "grpc"
+      - name: JDK_JAVA_OPTIONS
+        value: "--add-opens=java.base/java.lang=ALL-UNNAMED"

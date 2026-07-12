@@ -1,0 +1,29 @@
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: storefront-bff-public-entrypoint
+  namespace: staging
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: storefront-bff }
+  mtls: { mode: PERMISSIVE }
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: backoffice-bff-public-entrypoint
+  namespace: staging
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: backoffice-bff }
+  mtls: { mode: PERMISSIVE }
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: swagger-ui-public-entrypoint
+  namespace: staging
+spec:
+  selector:
+    matchLabels: { app.kubernetes.io/name: swagger-ui }
+  mtls: { mode: PERMISSIVE }

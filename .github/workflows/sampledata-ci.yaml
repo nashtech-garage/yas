@@ -2,14 +2,12 @@ name: sampledata service ci
 
 on:
   push:
-    branches: ["main"]
     paths:
       - "sampledata/**"
       - ".github/workflows/actions/action.yaml"
       - ".github/workflows/sampledata-ci.yaml"
       - "pom.xml"
   pull_request:
-    branches: ["main"]
     paths:
       - "sampledata/**"
       - ".github/workflows/actions/action.yaml"
@@ -17,18 +15,83 @@ on:
       - "pom.xml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  checks: write
+  pull-requests: write
+
 jobs:
-  Build:
+  test:
     runs-on: ubuntu-latest
     env:
-      FROM_ORIGINAL_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.ref == 'refs/heads/main' }}
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: ./.github/workflows/actions
-      - name: Run Maven Build Command
-        run: mvn clean install -pl sampledata -am
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Run unit tests
+        run: mvn clean install -pl sampledata -am -U
+      - name: Test Results
+        uses: dorny/test-reporter@v1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        with:
+          name: Sampledata-Service-Unit-Test-Results
+          path: "sampledata/**/*-reports/TEST*.xml"
+          reporter: java-junit
+      - name: Analyze with sonar cloud
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f sampledata -Dsonar.organization=23122004 -Dsonar.projectKey=23122004_DevOps-Project01 -Dsonar.host.url=https://sonarcloud.io
+      - name: Add coverage report to PR
+        uses: madrapps/jacoco-report@v1.6.1
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        with:
+          paths: ${{github.workspace}}/sampledata/target/site/jacoco/jacoco.xml
+          token: ${{secrets.GITHUB_TOKEN}}
+          min-coverage-overall: 70
+          min-coverage-changed-files: 70
+          title: 'Sampledata Coverage Report'
+          pass-coverage-on-overall-minimum: true
+          update-comment: true
+      - name: Upload JaCoCo coverage report
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sampledata-jacoco-coverage
+          path: sampledata/target/site/jacoco/
+          if-no-files-found: warn
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      FROM_ORIGINAL_REPOSITORY: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/workflows/actions
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build artifacts (skip tests)
+        run: mvn clean install -pl sampledata -am -U -DskipTests
       - name: Run Maven Checkstyle
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         run: mvn checkstyle:checkstyle -pl sampledata -am -Dcheckstyle.output.file=sampledata-checkstyle-result.xml
@@ -36,27 +99,42 @@ jobs:
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
-          path: '**/sampledata-checkstyle-result.xml'
-      - name: Analyze with sonar cloud
+          path: "**/sampledata-checkstyle-result.xml"
+      - name: Cache OWASP Dependency Check data
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -f sampledata
+        uses: actions/cache@v4
+        with:
+          path: .dependency-check-data
+          key: ${{ runner.os }}-dependency-check-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-dependency-check-
       - name: OWASP Dependency Check
         if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: 'yas'
-          path: '.'
-          format: 'HTML'
+        run: |
+          mkdir -p .dependency-check-data reports
+          docker run --rm \
+            -v "${{ github.workspace }}:/github/workspace" \
+            -v "${{ github.workspace }}/.dependency-check-data:/usr/share/dependency-check/data" \
+            owasp/dependency-check-action:latest \
+            --project "yas" \
+            --scan "/github/workspace" \
+            --format "HTML" \
+            --out "/github/workspace/reports" \
+            --nvdDatafeed "https://dependency-check.github.io/DependencyCheck_Builder/nvd_cache/"
       - name: Upload OWASP Dependency Check results
-        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' }}
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && (success() || failure()) }}
         uses: actions/upload-artifact@master
         with:
           name: OWASP Dependency Check Report
           path: ${{github.workspace}}/reports
+      - name: Snyk Dependency Scan
+        if: ${{ env.FROM_ORIGINAL_REPOSITORY == 'true' && env.SNYK_TOKEN != '' }}
+        uses: snyk/actions/maven@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=sampledata/pom.xml --severity-threshold=high
       - name: Log in to the Container registry
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
@@ -70,4 +148,4 @@ jobs:
         with:
           context: ./sampledata
           push: true
-          tags: ghcr.io/nashtech-garage/yas-sampledata:latest
+          tags: ghcr.io/23122004/yas-sampledata:latest

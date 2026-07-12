@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { FieldErrorsImpl, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import slugify from 'slugify';
 
@@ -17,7 +17,7 @@ import { getProduct } from '../services/ProductService';
 
 type Props = {
   register: UseFormRegister<FormProduct>;
-  errors: FieldErrorsImpl<FormProduct>;
+  errors: FieldErrors<FormProduct>;
   setValue: UseFormSetValue<FormProduct>;
   watch: UseFormWatch<FormProduct>;
 };
@@ -137,7 +137,9 @@ const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props)
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product price is required' },
-          validate: { positive: (v) => v > 0 || 'Price must be greater than 0' },
+          validate: {
+            positive: (v) => (v !== undefined && Number(v) > 0) || 'Price must be greater than 0',
+          },
         }}
       />
 
@@ -150,7 +152,9 @@ const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props)
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product weight is required' },
-          validate: { positive: (v) => v > 0 || 'Weight must be greater than 0' },
+          validate: {
+            positive: (v) => (v !== undefined && Number(v) > 0) || 'Weight must be greater than 0',
+          },
         }}
       />
 
@@ -180,8 +184,10 @@ const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props)
         registerOptions={{
           required: { value: true, message: 'Product length is required' },
           validate: {
-            positive: (v) => v > 0 || 'Length must be greater than 0',
-            greaterThanWidth: (v) => (width && v > width) || 'Length must be greater than width',
+            positive: (v) => (v !== undefined && Number(v) > 0) || 'Length must be greater than 0',
+            greaterThanWidth: (v) =>
+              (v !== undefined && width !== undefined && Number(v) > Number(width)) ||
+              'Length must be greater than width',
           },
         }}
       />
@@ -195,7 +201,9 @@ const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props)
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product width is required' },
-          validate: { positive: (v) => v > 0 || 'Width must be greater than 0' },
+          validate: {
+            positive: (v) => (v !== undefined && Number(v) > 0) || 'Width must be greater than 0',
+          },
         }}
       />
 
@@ -208,7 +216,9 @@ const ProductGeneralInformation = ({ register, errors, setValue, watch }: Props)
         type="number"
         registerOptions={{
           required: { value: true, message: 'Product height is required' },
-          validate: { positive: (v) => v > 0 || 'Height must be greater than 0' },
+          validate: {
+            positive: (v) => (v !== undefined && Number(v) > 0) || 'Height must be greater than 0',
+          },
         }}
       />
 

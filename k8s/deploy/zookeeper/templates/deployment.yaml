@@ -47,17 +47,15 @@ spec:
               containerPort: 2181
               protocol: TCP
           livenessProbe:
-            exec:
-              command:
-                - bash
-                - -c
-                - "(echo ruok | nc localhost 2181) || exit 1"
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 10
+            periodSeconds: 10
           readinessProbe:
-            exec:
-              command:
-                - bash
-                - -c
-                - "(echo ruok | nc localhost 2181) || exit 1"
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -72,11 +70,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  volumeClaimTemplates:
-    - metadata:
-        name: {{ include "zookeeper.fullname" . }}-persistent-storage
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: 1Gi
+      volumes:
+        - name: {{ include "zookeeper.fullname" . }}-persistent-storage
+          emptyDir: {}

@@ -1,0 +1,39 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: tax-retry
+  namespace: staging
+spec:
+  hosts:
+    - tax.staging.svc.cluster.local
+  http:
+    - retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: 5xx,reset,connect-failure,retriable-4xx
+      timeout: 20s
+      route:
+        - destination:
+            host: tax
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: order-retry
+  namespace: staging
+spec:
+  hosts:
+    - order.staging.svc.cluster.local
+  http:
+    - retries:
+        attempts: 3
+        perTryTimeout: 10s
+        retryOn: 5xx,reset,connect-failure
+      timeout: 30s
+      route:
+        - destination:
+            host: order
+            port:
+              number: 80

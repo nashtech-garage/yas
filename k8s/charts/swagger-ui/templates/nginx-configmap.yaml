@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "swagger-ui.fullname" . }}-nginx-template
+  labels:
+    {{- include "swagger-ui.labels" . | nindent 4 }}
+data:
+  default.conf.template: |-
+    types {
+      text/plain yaml;
+      text/plain yml;
+    }
+
+    gzip on;
+    gzip_static on;
+    gzip_disable "msie6";
+
+    gzip_vary on;
+    gzip_types text/plain text/css application/javascript;
+
+    map $request_method $access_control_max_age {
+      OPTIONS 1728000; # 20 days
+    }
+    server_tokens off;
+
+    server {
+      listen            $PORT;
+      server_name       localhost;
+      index             index.html index.htm;
+
+      location $BASE_URL {
+        absolute_redirect off;
+        alias            /usr/share/nginx/html/;
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+        add_header Pragma "no-cache" always;
+        add_header Expires "0" always;
+
+        location ~ swagger-initializer.js {
+          expires -1;
+          add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+          add_header Pragma "no-cache" always;
+          add_header Expires "0" always;
+          include templates/cors.conf;
+        }
+
+        location ~* \.(?:json|yml|yaml)$ {
+          #SWAGGER_ROOT
+          expires -1;
+          add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+          add_header Pragma "no-cache" always;
+          add_header Expires "0" always;
+
+          include templates/cors.conf;
+        }
+
+        include templates/cors.conf;
+        include templates/embedding.conf;
+      }
+    }

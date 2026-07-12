@@ -20,7 +20,13 @@ metadata:
     reloader.stakater.com/match: "true"
 data:
   gateway-routes-config.yaml: |
-    {{- toYaml .Values.gatewayRoutesConfig | nindent 4 }}
+    spring:
+      cloud:
+        gateway:
+          server:
+            webflux:
+              routes:
+                {{- toYaml .Values.gatewayRoutesConfig.spring.cloud.gateway.routes | nindent 16 }}
 ---
 #Configmap for backoffice-bff extra
 apiVersion: v1

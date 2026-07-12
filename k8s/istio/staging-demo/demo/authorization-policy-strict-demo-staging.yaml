@@ -1,0 +1,37 @@
+# STRICT DEMO variant — exact assignment scenario:
+#   "only allow order-service to call product-service, block other services"
+#
+# WARNING: while this is applied, the storefront/backoffice can no longer browse
+# products (their BFFs are denied), so the live shop UI will 403 on product.
+# Apply it only for the authz allow/deny demonstration, then delete it and
+# re-apply authorization-policies.yaml to restore the shop.
+#
+#   Apply demo : kubectl apply -f authorization-policy-strict-demo.yaml
+#   Revert     : kubectl delete -f authorization-policy-strict-demo.yaml
+#
+# Test:
+#   ALLOW : kubectl exec -n yas deploy/order -c istio-proxy -- \
+#             curl -s -o /dev/null -w '%{http_code}\n' http://product.staging.svc.cluster.local/actuator/health
+#           => 200
+#   DENY  : kubectl exec -n yas deploy/tax   -c istio-proxy -- \
+#             curl -s -o /dev/null -w '%{http_code}\n' http://product.staging.svc.cluster.local/actuator/health
+#           => 403
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: product-only-order-strict-demo
+  namespace: staging
+  labels:
+    app.kubernetes.io/part-of: yas
+    security.istio.io/purpose: authz-demo
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: product
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/staging/sa/order

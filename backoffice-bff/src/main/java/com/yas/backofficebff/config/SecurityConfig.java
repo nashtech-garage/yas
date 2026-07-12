@@ -57,6 +57,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("unchecked")
     public GrantedAuthoritiesMapper userAuthoritiesMapperForKeycloak() {
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();

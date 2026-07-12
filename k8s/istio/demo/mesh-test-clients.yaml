@@ -1,0 +1,56 @@
+# Sidecar-injected test clients for the Service Mesh authz/mTLS demo.
+#
+# Traffic MUST originate from a normal (UID != 1337) container so the Istio
+# sidecar captures it and wraps it in mTLS. curl run inside the istio-proxy
+# container is NOT captured (runs as 1337) and hits STRICT-mTLS peers as
+# plaintext -> connection reset. Hence these dedicated curl pods.
+#
+#   mesh-tester-order   : ServiceAccount = order   -> ALLOWED by product-allow-callers
+#   mesh-tester-default : ServiceAccount = default -> DENIED  (not in allow-list)
+#
+# Usage:
+#   kubectl apply -f mesh-test-clients.yaml
+#   kubectl exec -n yas mesh-tester-order   -c tester -- \
+#       curl -s -o /dev/null -w '%{http_code}\n' http://product.yas.svc.cluster.local/actuator/health   # 200
+#   kubectl exec -n yas mesh-tester-default -c tester -- \
+#       curl -s -o /dev/null -w '%{http_code}\n' http://product.yas.svc.cluster.local/actuator/health   # 403
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mesh-tester-order
+  namespace: yas
+  labels:
+    app: mesh-tester
+    role: allowed-client
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  serviceAccountName: order
+  containers:
+    - name: tester
+      image: curlimages/curl:8.10.1
+      command: ["sleep", "infinity"]
+      resources:
+        requests: { cpu: "5m", memory: "16Mi" }
+        limits:   { cpu: "50m", memory: "48Mi" }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mesh-tester-default
+  namespace: yas
+  labels:
+    app: mesh-tester
+    role: denied-client
+  annotations:
+    sidecar.istio.io/inject: "true"
+spec:
+  serviceAccountName: default
+  containers:
+    - name: tester
+      image: curlimages/curl:8.10.1
+      command: ["sleep", "infinity"]
+      resources:
+        requests: { cpu: "5m", memory: "16Mi" }
+        limits:   { cpu: "50m", memory: "48Mi" }
