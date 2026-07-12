@@ -103,4 +103,3 @@ jobs:
           context: ./inventory
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/yas-inventory:${{ steps.slug.outputs.sha }}
-#test
