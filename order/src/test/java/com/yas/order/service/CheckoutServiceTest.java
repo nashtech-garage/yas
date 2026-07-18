@@ -110,8 +110,12 @@ class CheckoutServiceTest {
                 productCheckoutListVms.size(),
                 1,
                 true);
+        // Instancio generates productId independently per checkout item, so two
+        // items can randomly collide on the same id; keep the first mapping
+        // instead of letting toMap throw, since production never sees two
+        // different product records share an id from the same query.
         productCheckoutListVmMap = productCheckoutListVms.stream()
-                .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
+                .collect(Collectors.toMap(ProductCheckoutListVm::id, Function.identity(), (first, second) -> first));
     }
 
     @Test

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "dev-test-ui": "echo 'trigger ui'"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.3",

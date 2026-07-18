@@ -54,13 +54,19 @@ public class PaypalHandler extends AbstractPaymentHandler implements PaymentHand
         PaypalCapturePaymentResponse paypalCapturePaymentResponse = paypalService.capturePayment(
             paypalCapturePaymentRequest
         );
+        // paymentStatus/paymentMethod are only present on a successful PayPal capture; a
+        // cancelled/rejected order comes back with just a failureMessage, so fall back to
+        // CANCELLED here instead of letting PaymentStatus.valueOf(null) throw an NPE.
+        PaymentStatus paymentStatus = paypalCapturePaymentResponse.paymentStatus() != null
+                ? PaymentStatus.valueOf(paypalCapturePaymentResponse.paymentStatus())
+                : PaymentStatus.CANCELLED;
         return CapturedPayment.builder()
                 .checkoutId(paypalCapturePaymentResponse.checkoutId())
                 .amount(paypalCapturePaymentResponse.amount())
                 .paymentFee(paypalCapturePaymentResponse.paymentFee())
                 .gatewayTransactionId(paypalCapturePaymentResponse.gatewayTransactionId())
-                .paymentMethod(PaymentMethod.valueOf(paypalCapturePaymentResponse.paymentMethod()))
-                .paymentStatus(PaymentStatus.valueOf(paypalCapturePaymentResponse.paymentStatus()))
+                .paymentMethod(PaymentMethod.valueOf(getProviderId()))
+                .paymentStatus(paymentStatus)
                 .failureMessage(paypalCapturePaymentResponse.failureMessage())
                 .build();
     }

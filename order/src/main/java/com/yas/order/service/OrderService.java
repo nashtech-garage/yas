@@ -22,20 +22,25 @@ import com.yas.order.utils.Constants;
 import com.yas.order.viewmodel.order.OrderBriefVm;
 import com.yas.order.viewmodel.order.OrderExistsByProductAndUserGetVm;
 import com.yas.order.viewmodel.order.OrderGetVm;
+import com.yas.order.viewmodel.order.OrderItemPostVm;
 import com.yas.order.viewmodel.order.OrderListVm;
 import com.yas.order.viewmodel.order.OrderPostVm;
 import com.yas.order.viewmodel.order.OrderVm;
 import com.yas.order.viewmodel.order.PaymentOrderStatusVm;
 import com.yas.order.viewmodel.orderaddress.OrderAddressPostVm;
+import com.yas.order.viewmodel.product.ProductCheckoutListVm;
 import com.yas.order.viewmodel.product.ProductVariationVm;
 import com.yas.order.viewmodel.promotion.PromotionUsageVm;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,6 +67,7 @@ public class OrderService {
     private final CartService cartService;
     private final OrderMapper orderMapper;
     private final PromotionService promotionService;
+    private final TaxService taxService;
 
     public OrderVm createOrder(OrderPostVm orderPostVm) {
 
@@ -97,10 +103,16 @@ public class OrderService {
                 .countryName(shipOrderAddressPostVm.countryName())
                 .build();
 
+        Map<Long, BigDecimal> taxPercentByProductId = resolveTaxPercentByProductId(
+                orderPostVm.orderItemPostVms(), shipOrderAddressPostVm);
+        BigDecimal totalTax = orderPostVm.orderItemPostVms().stream()
+                .map(item -> itemTaxAmount(item, taxPercentByProductId.get(item.productId())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         Order order = Order.builder()
                 .email(orderPostVm.email())
                 .note(orderPostVm.note())
-                .tax(orderPostVm.tax())
+                .tax(totalTax.floatValue())
                 .discount(orderPostVm.discount())
                 .numberItem(orderPostVm.numberItem())
                 .totalPrice(orderPostVm.totalPrice())
@@ -117,14 +129,20 @@ public class OrderService {
         orderRepository.save(order);
 
         Set<OrderItem> orderItems = orderPostVm.orderItemPostVms().stream()
-                .map(item -> OrderItem.builder()
+                .map(item -> {
+                    BigDecimal taxPercent = taxPercentByProductId.getOrDefault(item.productId(), BigDecimal.ZERO);
+                    return OrderItem.builder()
                         .productId(item.productId())
                         .productName(item.productName())
                         .quantity(item.quantity())
                         .productPrice(item.productPrice())
                         .note(item.note())
+                        .discountAmount(item.discountAmount())
+                        .taxPercent(taxPercent)
+                        .taxAmount(itemTaxAmount(item, taxPercent))
                         .orderId(order.getId())
-                        .build())
+                        .build();
+                })
                 .collect(Collectors.toSet());
         orderItemRepository.saveAll(orderItems);
 
@@ -145,6 +163,46 @@ public class OrderService {
         });
         promotionService.updateUsagePromotion(promotionUsageVms);
         return orderVm;
+    }
+
+    private Map<Long, BigDecimal> resolveTaxPercentByProductId(
+            List<OrderItemPostVm> orderItemPostVms, OrderAddressPostVm shipOrderAddressPostVm) {
+        Set<Long> productIds = orderItemPostVms.stream()
+                .map(OrderItemPostVm::productId)
+                .collect(Collectors.toSet());
+        Map<Long, ProductCheckoutListVm> products =
+                productService.getProductInfomation(productIds, 0, productIds.size());
+
+        Map<Long, BigDecimal> taxPercentByProductId = new HashMap<>();
+        products.forEach((productId, product) -> {
+            Long taxClassId = product.taxClassId();
+            if (taxClassId == null) {
+                return;
+            }
+            try {
+                Double percent = taxService.getTaxPercentByAddress(
+                        taxClassId,
+                        shipOrderAddressPostVm.countryId(),
+                        shipOrderAddressPostVm.stateOrProvinceId(),
+                        shipOrderAddressPostVm.zipCode());
+                if (percent != null) {
+                    taxPercentByProductId.put(productId, BigDecimal.valueOf(percent));
+                }
+            } catch (Exception e) {
+                log.error("Failed to resolve tax percent for product {}: {}", productId, e.getMessage());
+            }
+        });
+        return taxPercentByProductId;
+    }
+
+    private BigDecimal itemTaxAmount(OrderItemPostVm item, BigDecimal taxPercent) {
+        if (taxPercent == null) {
+            return BigDecimal.ZERO;
+        }
+        return item.productPrice()
+                .multiply(BigDecimal.valueOf(item.quantity()))
+                .multiply(taxPercent)
+                .divide(BigDecimal.valueOf(100));
     }
 
     public OrderVm getOrderWithItemsById(long id) {

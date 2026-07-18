@@ -2,11 +2,15 @@ package com.yas.promotion.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.BadRequestException;
 import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.promotion.PromotionApplication;
 import com.yas.promotion.model.Promotion;
 import com.yas.promotion.model.PromotionApply;
 import com.yas.promotion.model.enumeration.ApplyTo;
@@ -24,31 +28,40 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
-@SpringBootTest(classes = PromotionApplication.class)
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class PromotionServiceTest {
-    @Autowired
+
+    @Mock
     private PromotionRepository promotionRepository;
-    @MockitoBean
+    
+    @Mock
     private ProductService productService;
-    @Autowired
+    
+    @InjectMocks
     private PromotionService promotionService;
 
     private Promotion promotion1;
+    private Promotion promotion2;
+    private Promotion promotion3;
     private Promotion wrongRangeDatePromotion;
     private PromotionPostVm promotionPostVm;
 
     @BeforeEach
     void setUp() {
         promotion1 = Promotion.builder()
+                .id(1L)
                 .name("Promotion 1")
                 .slug("promotion-1")
                 .description("Description 1")
@@ -57,20 +70,19 @@ class PromotionServiceTest {
                 .discountAmount(100L)
                 .discountPercentage(10L)
                 .isActive(true)
-                .startDate(Instant.now())
+                .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
                 .endDate(Instant.now().plus(30, ChronoUnit.DAYS))
                 .applyTo(ApplyTo.BRAND)
                 .minimumOrderPurchaseAmount(0L)
                 .build();
 
-        var promotionApply = PromotionApply.builder()
+        var promotionApply1 = PromotionApply.builder()
             .promotion(promotion1)
             .brandId(1L).build();
-        promotion1.setPromotionApplies(List.of(promotionApply));
+        promotion1.setPromotionApplies(List.of(promotionApply1));
 
-        promotion1 = promotionRepository.save(promotion1);
-
-        Promotion promotion2 = Promotion.builder()
+        promotion2 = Promotion.builder()
+                .id(2L)
                 .name("Promotion 2")
                 .slug("promotion-2")
                 .description("Description 2")
@@ -78,7 +90,7 @@ class PromotionServiceTest {
                 .discountAmount(200L)
                 .discountPercentage(20L)
                 .isActive(true)
-                .startDate(Instant.now().plus(30, ChronoUnit.DAYS))
+                .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
                 .endDate(Instant.now().plus(60, ChronoUnit.DAYS))
                 .applyTo(ApplyTo.PRODUCT)
                 .discountType(DiscountType.PERCENTAGE)
@@ -90,9 +102,8 @@ class PromotionServiceTest {
             .productId(1L).build();
         promotion2.setPromotionApplies(List.of(promotionApply2));
 
-        promotionRepository.save(promotion2);
-
-        Promotion promotion3 = Promotion.builder()
+        promotion3 = Promotion.builder()
+            .id(3L)
             .name("Promotion 3")
             .slug("promotion-3")
             .description("Description 3")
@@ -100,7 +111,7 @@ class PromotionServiceTest {
             .discountAmount(200L)
             .discountPercentage(20L)
             .isActive(true)
-            .startDate(Instant.now().plus(30, ChronoUnit.DAYS))
+            .startDate(Instant.now().minus(1, ChronoUnit.DAYS))
             .endDate(Instant.now().plus(60, ChronoUnit.DAYS))
             .applyTo(ApplyTo.CATEGORY)
             .discountType(DiscountType.FIXED)
@@ -108,13 +119,12 @@ class PromotionServiceTest {
             .build();
 
         var promotionApply3 = PromotionApply.builder()
-            .promotion(promotion2)
+            .promotion(promotion3)
             .productId(1L).build();
         promotion3.setPromotionApplies(List.of(promotionApply3));
 
-        promotionRepository.save(promotion3);
-
         wrongRangeDatePromotion = Promotion.builder()
+            .id(4L)
             .name("Wrong date")
             .slug("wrong-date")
             .description("Promotion with invalid date range")
@@ -127,15 +137,9 @@ class PromotionServiceTest {
             .usageCount(10)
             .usageLimit(10)
             .isActive(true)
-            .startDate(Instant.now().plus(30, ChronoUnit.DAYS))
+            .startDate(Instant.now().minus(10, ChronoUnit.DAYS))
             .endDate(Instant.now().plus(60, ChronoUnit.DAYS))
             .build();
-        wrongRangeDatePromotion = promotionRepository.save(wrongRangeDatePromotion);
-    }
-
-    @AfterEach
-    void tearDown() {
-        promotionRepository.deleteAll();
     }
 
     @Test
@@ -154,6 +158,16 @@ class PromotionServiceTest {
                 .applyTo(ApplyTo.PRODUCT)
                 .productIds(List.of(1L, 2L, 3L))
                 .build();
+                
+        Promotion savedPromotion = new Promotion();
+        savedPromotion.setId(4L);
+        savedPromotion.setName("Promotion 4");
+        savedPromotion.setSlug("promotion-4");
+        savedPromotion.setIsActive(true);
+
+        org.mockito.Mockito.lenient().when(promotionRepository.findBySlugAndIsActiveTrue(anyString())).thenReturn(Optional.empty());
+        org.mockito.Mockito.lenient().when(promotionRepository.findByCouponCodeAndIsActiveTrue(anyString())).thenReturn(Optional.empty());
+        when(promotionRepository.save(any(Promotion.class))).thenReturn(savedPromotion);
 
         PromotionDetailVm result = promotionService.createPromotion(promotionPostVm);
         assertEquals(promotionPostVm.getSlug(), result.slug());
@@ -166,6 +180,9 @@ class PromotionServiceTest {
         promotionPostVm = PromotionPostVm.builder()
                 .couponCode("code3")
                 .build();
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code3")).thenReturn(Optional.of(promotion3));
+        
         DuplicatedException duplicatedException = assertThrows(DuplicatedException.class,
             () -> promotionService.createPromotion(promotionPostVm));
         assertEquals("The coupon code code3 is already existed", duplicatedException.getMessage());
@@ -183,6 +200,10 @@ class PromotionServiceTest {
                 .discountAmount(300L)
                 .discountPercentage(30L)
                 .build();
+                
+        org.mockito.Mockito.lenient().when(promotionRepository.findBySlugAndIsActiveTrue(promotion1.getSlug())).thenReturn(Optional.of(promotion1));
+        org.mockito.Mockito.lenient().when(promotionRepository.findByCouponCodeAndIsActiveTrue(anyString())).thenReturn(Optional.empty());
+        
         assertThrows(DuplicatedException.class, () -> promotionService.createPromotion(promotionPostVm),
                 String.format(Constants.ErrorCode.SLUG_ALREADY_EXITED, promotionPostVm.getSlug()));
     }
@@ -206,6 +227,10 @@ class PromotionServiceTest {
 
     @Test
     void getPromotionList_ThenSuccess() {
+        Page<Promotion> page = new PageImpl<>(List.of(promotion1, promotion2, promotion3));
+        when(promotionRepository.findPromotions(anyString(), anyString(), any(Instant.class), any(Instant.class), any(PageRequest.class)))
+            .thenReturn(page);
+            
         PromotionListVm result = promotionService.getPromotions(0, 5,
                 "Promotion", "code",
                 Instant.now().minus(120, ChronoUnit.DAYS), Instant.now().plus(120, ChronoUnit.DAYS));
@@ -216,6 +241,8 @@ class PromotionServiceTest {
 
     @Test
     void getPromotion_ThenSuccess() {
+        when(promotionRepository.findById(promotion1.getId())).thenReturn(Optional.of(promotion1));
+        
         PromotionDetailVm result = promotionService.getPromotion(promotion1.getId());
         assertEquals("promotion-1", result.slug());
         assertEquals("Promotion 1", result.name());
@@ -229,6 +256,8 @@ class PromotionServiceTest {
 
     @Test
     void getPromotion_WhenNotExist_ThenNotFoundExceptionThrown() {
+        when(promotionRepository.findById(0L)).thenReturn(Optional.empty());
+        
         var exception = assertThrows(NotFoundException.class, () -> promotionService.getPromotion(0L));
         assertEquals(String.format(Constants.ErrorCode.PROMOTION_NOT_FOUND, 0L), exception.getMessage());
     }
@@ -237,7 +266,8 @@ class PromotionServiceTest {
     void testVerifyPromotion_PromotionNotFound() {
         var promotionVerifyVm = new PromotionVerifyVm("COUPON123", 150L, List.of(1L, 2L, 3L));
 
-        // Expect a NotFoundException to be thrown
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("COUPON123")).thenReturn(Optional.empty());
+
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -247,10 +277,10 @@ class PromotionServiceTest {
 
     @Test
     void testVerifyPromotion_ExhaustedUsageQuantity() {
-        // Mock the repository to return the promotion
         var promotionVerifyVm = new PromotionVerifyVm("codeWrong", 130L, List.of(1L));
 
-        // Expect a BadRequestException due to exhausted usage quantity
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("codeWrong")).thenReturn(Optional.of(wrongRangeDatePromotion));
+
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -261,7 +291,9 @@ class PromotionServiceTest {
     @Test
     void testVerifyPromotion_InvalidOrderPrice() {
         var promotionVerifyVm = new PromotionVerifyVm("code2", 10L, List.of(1L));
-        // Expect a BadRequestException due to invalid order price
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code2")).thenReturn(Optional.of(promotion2));
+        
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -272,9 +304,10 @@ class PromotionServiceTest {
     @Test
     void testVerifyPromotion_ProductNotFound() {
         var promotionVerifyVm = new PromotionVerifyVm("code2", 1000L, List.of(1L,2L,3L));
-        Mockito.when(productService.getProductByCategoryIds(ArgumentMatchers.anyList())).thenReturn(List.of());
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code2")).thenReturn(Optional.of(promotion2));
+        when(productService.getProductByIds(anyList())).thenReturn(List.of());
 
-        // Expect a NotFoundException due to no products found for promotion
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             promotionService.verifyPromotion(promotionVerifyVm);
         });
@@ -289,8 +322,10 @@ class PromotionServiceTest {
             1000000L,
             List.of(1L, 2L, 3L)
         );
-        Mockito.when(productService.getProductByBrandIds(ArgumentMatchers.anyList()))
-            .thenReturn(createProductVms());
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code1")).thenReturn(Optional.of(promotion1));
+        when(productService.getProductByBrandIds(anyList())).thenReturn(createProductVms());
+        
         var result = promotionService.verifyPromotion(promotionVerifyData);
 
         assertEquals(true, result.isValid());
@@ -306,8 +341,10 @@ class PromotionServiceTest {
             1000000L,
             List.of(1L, 2L, 3L)
         );
-        Mockito.when(productService.getProductByIds(ArgumentMatchers.anyList()))
-            .thenReturn(createProductVms());
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code2")).thenReturn(Optional.of(promotion2));
+        when(productService.getProductByIds(anyList())).thenReturn(createProductVms());
+        
         var result = promotionService.verifyPromotion(promotionVerifyData);
 
         assertEquals(true, result.isValid());
@@ -323,8 +360,10 @@ class PromotionServiceTest {
             1000000L,
             List.of(1L, 2L, 3L)
         );
-        Mockito.when(productService.getProductByCategoryIds(ArgumentMatchers.anyList()))
-            .thenReturn(createProductVms());
+        
+        when(promotionRepository.findByCouponCodeAndIsActiveTrue("code3")).thenReturn(Optional.of(promotion3));
+        when(productService.getProductByCategoryIds(anyList())).thenReturn(createProductVms());
+        
         var result = promotionService.verifyPromotion(promotionVerifyData);
 
         assertEquals(true, result.isValid());

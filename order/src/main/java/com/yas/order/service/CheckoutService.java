@@ -103,8 +103,8 @@ public class CheckoutService {
                 throw new NotFoundException(MessageCode.PRODUCT_NOT_FOUND, item.getProductId());
             }
             return item.toBuilder()
-                    .productName(product.getName())
-                    .productPrice(BigDecimal.valueOf(product.getPrice()))
+                    .productName(product.name())
+                    .productPrice(BigDecimal.valueOf(product.price()))
                     .build();
         }).toList();
     }

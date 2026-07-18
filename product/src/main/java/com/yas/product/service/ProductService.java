@@ -421,7 +421,7 @@ public class ProductService {
         List<Long> productOptionIds = optionValueVms.stream()
             .map(ProductOptionValueSaveVm::productOptionId).toList();
         List<ProductOption> productOptions = productOptionRepository.findAllByIdIn(productOptionIds);
-        if (CollectionUtils.isEmpty(productOptions)) {
+        if (CollectionUtils.isNotEmpty(productOptionIds) && CollectionUtils.isEmpty(productOptions)) {
             throw new BadRequestException(Constants.ErrorCode.NO_MATCHING_PRODUCT_OPTIONS);
         }
         return productOptions.stream()

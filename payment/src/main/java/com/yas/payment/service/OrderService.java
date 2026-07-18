@@ -2,6 +2,7 @@ package com.yas.payment.service;
 
 import com.yas.payment.config.ServiceUrlConfig;
 import com.yas.payment.model.CapturedPayment;
+import com.yas.payment.model.enumeration.PaymentStatus;
 import com.yas.payment.viewmodel.CheckoutStatusVm;
 import com.yas.payment.viewmodel.PaymentOrderStatusVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -34,7 +35,7 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
                 .buildAndExpand()
                 .toUri();
         CheckoutStatusVm checkoutStatusVm = new CheckoutStatusVm(capturedPayment.getCheckoutId(),
-                capturedPayment.getPaymentStatus().name());
+                toCheckoutStatus(capturedPayment.getPaymentStatus()));
 
         return restClient.put()
                 .uri(url)
@@ -61,6 +62,14 @@ public class OrderService extends AbstractCircuitBreakFallbackHandler {
             .body(orderPaymentStatusVm)
             .retrieve()
             .body(PaymentOrderStatusVm.class);
+    }
+
+    // order-service's CheckoutState enum has no CANCELLED value (only PENDING, COMPLETED,
+    // and other in-progress states like PAYMENT_FAILED), so it can't take payment's
+    // PaymentStatus.name() as-is for every status -- translate the one value that doesn't
+    // exist there.
+    private String toCheckoutStatus(PaymentStatus paymentStatus) {
+        return paymentStatus == PaymentStatus.CANCELLED ? "PAYMENT_FAILED" : paymentStatus.name();
     }
 
     protected Long handleLongFallback(Throwable throwable) throws Throwable {

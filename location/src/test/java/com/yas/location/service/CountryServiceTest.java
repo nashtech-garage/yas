@@ -1,181 +1,171 @@
 package com.yas.location.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.yas.commonlibrary.exception.DuplicatedException;
 import com.yas.commonlibrary.exception.NotFoundException;
-import com.yas.location.LocationApplication;
+import com.yas.location.mapper.CountryMapper;
 import com.yas.location.model.Country;
 import com.yas.location.repository.CountryRepository;
-
 import com.yas.location.viewmodel.country.CountryListGetVm;
 import com.yas.location.viewmodel.country.CountryPostVm;
 import com.yas.location.viewmodel.country.CountryVm;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-@SpringBootTest(classes = LocationApplication.class)
-public class CountryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CountryServiceTest {
 
-    @Autowired
+    @Mock
     private CountryRepository countryRepository;
-    @Autowired
+
+    @Mock
+    private CountryMapper countryMapper;
+
+    @InjectMocks
     private CountryService countryService;
-    private Country country1;
 
-    private void generateTestData() {
-        country1 = countryRepository.save(Country.builder()
-            .code2("TS")
-            .name("country-1")
-            .build());
-        countryRepository.save(Country.builder()
-            .code2("TW")
-            .name("country-2")
-            .build());
-    }
+    private Country country;
+    private CountryPostVm countryPostVm;
 
-    @AfterEach
-    void tearDown() {
-        countryRepository.deleteAll();
-    }
-
-    @Test
-    void getCountry_ExistInDatabase_Success() {
-        generateTestData();
-        CountryVm countryVm = countryService.findById(country1.getId());
-        assertNotNull(countryVm);
-        assertEquals("country-1", countryVm.name());
-    }
-
-    @Test
-    void getCountry_NotInDatabase_ThrowsCountryNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> countryService.findById(1L));
-        assertEquals(String.format("The country %s is not found", "1"), exception.getMessage());
-    }
-
-    @Test
-    void getAllCountries_Success() {
-        generateTestData();
-        List<CountryVm> countryVms = countryService.findAllCountries();
-        assertEquals(2, countryVms.size());
-    }
-
-    @Test
-    void createCountry_ValidData_Success() {
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .code2("SE")
-            .name("country")
+    @BeforeEach
+    void setUp() {
+        country = Country.builder()
+            .id(1L)
+            .name("Vietnam")
+            .code2("VN")
+            .code3("VNM")
             .build();
-        Country country = countryService.create(countryPostVm);
-        assertNotNull(country);
-        assertEquals("country", country.getName());
-    }
-
-    @Test
-    void createCountry_WithNameExisted_ThrowsNameAlreadyExistedException() {
-        generateTestData();
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .code2("SE")
-            .name("country-1")
+        
+        countryPostVm = CountryPostVm.builder()
+            .id("VN")
+            .name("Vietnam")
+            .code2("VN")
+            .code3("VNM")
+            .isBillingEnabled(true)
+            .isShippingEnabled(true)
+            .isCityEnabled(true)
+            .isZipCodeEnabled(true)
+            .isDistrictEnabled(true)
             .build();
-        DuplicatedException exception =
-            assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
-        assertEquals(String.format("Request name %s is already existed", "country-1"), exception.getMessage());
     }
 
     @Test
-    void createCountry_WithCodeExisted_ThrowsCodeAlreadyExistedException() {
-        generateTestData();
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .code2("TS")
-            .name("country")
-            .build();
-        DuplicatedException exception =
-            assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
-        assertEquals(String.format("The code %s is already existed", "TS"), exception.getMessage());
+    void findAllCountries_ShouldReturnListCountryVm() {
+        when(countryRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))).thenReturn(List.of(country));
+        when(countryMapper.toCountryViewModelFromCountry(country)).thenReturn(CountryVm.fromModel(country));
+
+        List<CountryVm> result = countryService.findAllCountries();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().name()).isEqualTo("Vietnam");
     }
 
     @Test
-    void updateCountry_ValidData_Success() {
-        generateTestData();
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .name("country-1-update")
-            .build();
-        countryService.update(countryPostVm, country1.getId());
-        // Get the country after update
-        CountryVm countryVm = countryService.findById(country1.getId());
-        assertNotNull(countryVm);
-        assertEquals("country-1-update", countryVm.name());
+    void findById_WhenIdExists_ShouldReturnCountryVm() {
+        when(countryRepository.findById(1L)).thenReturn(Optional.of(country));
+        when(countryMapper.toCountryViewModelFromCountry(country)).thenReturn(CountryVm.fromModel(country));
+
+        CountryVm result = countryService.findById(1L);
+
+        assertThat(result.name()).isEqualTo("Vietnam");
     }
 
     @Test
-    void updateCountry_WithIdNotValid_ThrowsCountryNotFoundException() {
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .name("country-1-update")
-            .build();
-        NotFoundException exception =
-            assertThrows(NotFoundException.class, () -> countryService.update(countryPostVm, 1L));
-        assertEquals(String.format("The country %s is not found", "1"), exception.getMessage());
+    void findById_WhenIdDoesNotExist_ShouldThrowNotFoundException() {
+        when(countryRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> countryService.findById(2L));
     }
 
     @Test
-    void updateCountry_WithNameExisted_ThrowsNameAlreadyExistedException() {
-        generateTestData();
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .code2("SE")
-            .name("country-2")
-            .build();
-        Long country1Id = country1.getId();
-        DuplicatedException exception =
-            assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
-        assertEquals(String.format("Request name %s is already existed", "country-2"), exception.getMessage());
+    void create_WhenValid_ShouldReturnCountry() {
+        when(countryRepository.existsByCode2IgnoreCase("VN")).thenReturn(false);
+        when(countryRepository.existsByNameIgnoreCase("Vietnam")).thenReturn(false);
+        when(countryMapper.toCountryFromCountryPostViewModel(countryPostVm)).thenReturn(country);
+        when(countryRepository.save(country)).thenReturn(country);
+
+        Country result = countryService.create(countryPostVm);
+
+        assertThat(result.getName()).isEqualTo("Vietnam");
     }
 
     @Test
-    void updateCountry_WithCodeExisted_ThrowsCodeAlreadyExistedException() {
-        generateTestData();
-        CountryPostVm countryPostVm = CountryPostVm.builder()
-            .code2("tW")
-            .name("country-1")
-            .build();
-        Long country1Id = country1.getId();
-        DuplicatedException exception =
-            assertThrows(DuplicatedException.class, () -> countryService.update(countryPostVm, country1Id));
-        assertEquals(String.format("The code %s is already existed", "tW"), exception.getMessage());
+    void create_WhenCode2Exists_ShouldThrowDuplicatedException() {
+        when(countryRepository.existsByCode2IgnoreCase("VN")).thenReturn(true);
+
+        assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
     }
 
     @Test
-    void deleteCountry_WithValidId_Success() {
-        generateTestData();
-        countryService.delete(country1.getId());
-        // Get the country with id after delete -> null
-        Long country1Id = country1.getId();
-        assertThrows(NotFoundException.class, () -> countryService.findById(country1Id));
+    void create_WhenNameExists_ShouldThrowDuplicatedException() {
+        when(countryRepository.existsByCode2IgnoreCase("VN")).thenReturn(false);
+        when(countryRepository.existsByNameIgnoreCase("Vietnam")).thenReturn(true);
+
+        assertThrows(DuplicatedException.class, () -> countryService.create(countryPostVm));
     }
 
     @Test
-    void deleteCountry_WithInValidId_ThrowsCountryNotFoundException() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> countryService.delete(1L));
-        assertEquals(String.format("The country %s is not found", "1"), exception.getMessage());
+    void update_WhenValid_ShouldUpdateCountry() {
+        when(countryRepository.findById(1L)).thenReturn(Optional.of(country));
+        when(countryRepository.existsByNameIgnoreCaseAndIdNot("Vietnam", 1L)).thenReturn(false);
+        when(countryRepository.existsByCode2IgnoreCaseAndIdNot("VN", 1L)).thenReturn(false);
+
+        countryService.update(countryPostVm, 1L);
+
+        verify(countryMapper).toCountryFromCountryPostViewModel(country, countryPostVm);
+        verify(countryRepository).save(country);
     }
 
     @Test
-    void getCountries_Pagination_Success() {
-        generateTestData();
-        int pageNo = 1;
-        int pageSize = 2;
-        CountryListGetVm countryListGetVm = countryService.getPageableCountries(pageNo, pageSize);
-        assertNotNull(countryListGetVm);
-        assertEquals(countryListGetVm.pageNo(), pageNo);
-        assertEquals(countryListGetVm.pageSize(), pageSize);
-        assertTrue(countryListGetVm.isLast());
-        assertEquals(2, countryListGetVm.totalElements());
-        assertEquals(1, countryListGetVm.totalPages());
+    void update_WhenCountryNotFound_ShouldThrowNotFoundException() {
+        when(countryRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> countryService.update(countryPostVm, 1L));
+    }
+
+    @Test
+    void delete_WhenValid_ShouldDeleteCountry() {
+        when(countryRepository.existsById(1L)).thenReturn(true);
+
+        countryService.delete(1L);
+
+        verify(countryRepository).deleteById(1L);
+    }
+
+    @Test
+    void delete_WhenCountryNotFound_ShouldThrowNotFoundException() {
+        when(countryRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> countryService.delete(1L));
+    }
+
+    @Test
+    void getPageableCountries_ShouldReturnCountryListGetVm() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "name"));
+        Page<Country> page = new PageImpl<>(List.of(country), pageable, 1);
+        when(countryRepository.findAll(pageable)).thenReturn(page);
+
+        CountryListGetVm result = countryService.getPageableCountries(0, 10);
+
+        assertThat(result.countryContent()).hasSize(1);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
     }
 }

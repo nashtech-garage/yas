@@ -13,10 +13,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.commonlibrary.exception.NotFoundException;
 import com.yas.rating.service.RatingService;
 import com.yas.rating.utils.Constants;
@@ -32,30 +30,35 @@ import java.util.List;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import com.yas.commonlibrary.exception.ApiExceptionHandler;
 
-@WebMvcTest(controllers = RatingController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class RatingControllerTest {
 
-    @MockitoBean
+    @Mock
     private RatingService ratingService;
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private RatingController ratingController;
 
+    private MockMvc mockMvc;
     private ObjectWriter objectWriter;
     private RatingVm ratingVm;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(ratingController)
+                .setControllerAdvice(new ApiExceptionHandler())
+                .build();
         objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
         ratingVm = new RatingVm(1L, "rating1", 5, 1L, "product1", "nhat1", "Nhat", "Tran", ZonedDateTime.now());
     }

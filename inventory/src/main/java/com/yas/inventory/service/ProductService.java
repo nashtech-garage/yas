@@ -5,6 +5,7 @@ import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.utils.AuthenticationUtils;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
+import com.yas.inventory.viewmodel.product.ProductWireVm;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import java.net.URI;
@@ -37,11 +38,14 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .path("/backoffice/products/" + id)
             .build()
             .toUri();
-        return restClient.get()
+        ProductWireVm product = restClient.get()
             .uri(url)
             .headers(h -> h.setBearerAuth(jwt))
             .retrieve()
-            .body(ProductInfoVm.class);
+            .body(ProductWireVm.class);
+        return product == null
+            ? null
+            : new ProductInfoVm(product.id(), product.name(), product.sku(), false);
     }
 
     @Retry(name = "restApi")
@@ -63,13 +67,18 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
             .queryParams(params)
             .build()
             .toUri();
-        return restClient.get()
+        List<ProductWireVm> products = restClient.get()
             .uri(url)
             .headers(h -> h.setBearerAuth(jwt))
             .retrieve()
-            .toEntity(new ParameterizedTypeReference<List<ProductInfoVm>>() {
+            .toEntity(new ParameterizedTypeReference<List<ProductWireVm>>() {
             })
             .getBody();
+        return products == null
+            ? List.of()
+            : products.stream()
+                .map(product -> new ProductInfoVm(product.id(), product.name(), product.sku(), false))
+                .toList();
     }
 
     @Retry(name = "restApi")

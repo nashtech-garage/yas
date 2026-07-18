@@ -28,11 +28,20 @@ const sendRequest = async (
   }
 
   try {
-    const response = await fetch(endpoint, method === 'GET' ? undefined : requestOptions);
+    // Use redirect: 'manual' to intercept cross-origin redirects (e.g. to Keycloak login)
+    // before the browser sends a CORS preflight and gets blocked.
+    const fetchOptions = method === 'GET'
+      ? { redirect: 'manual' as RequestRedirect }
+      : { ...requestOptions, redirect: 'manual' as RequestRedirect };
 
-    // Workaround to manually redirect in case of CORS error
-    if (response.type == 'cors' && response.redirected) {
-      window.location.href = response.url;
+    const response = await fetch(endpoint, fetchOptions);
+
+    // Type 'opaqueredirect' means the server returned a redirect to a cross-origin URL.
+    // Navigate through the BFF login entrypoint instead of the API endpoint.
+    // Otherwise Spring Security saves the API URL and returns the browser to JSON after login.
+    if (response.type === 'opaqueredirect') {
+      window.location.href = '/oauth2/authorization/api-client';
+      return response;
     }
 
     return response;

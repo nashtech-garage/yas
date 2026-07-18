@@ -1,5 +1,6 @@
 package com.yas.search.config;
 
+import java.time.Duration;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 public class ElasticTestContainer extends ElasticsearchContainer {
@@ -12,7 +13,7 @@ public class ElasticTestContainer extends ElasticsearchContainer {
 
     public ElasticTestContainer(String version) {
         super(IMAGE_NAME.formatted(version));
-        this.addFixedExposedPort(9200, 9200);
+        this.withStartupTimeout(Duration.ofMinutes(3));
         this.addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
         this.withEnv("xpack.security.enabled", "false");
         this.withEnv("xpack.security.transport.ssl.enabled", "false");

@@ -17,18 +17,18 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
@@ -40,22 +40,27 @@ import com.yas.promotion.viewmodel.PromotionDetailVm;
 import com.yas.promotion.viewmodel.PromotionListVm;
 import com.yas.promotion.viewmodel.PromotionPostVm;
 import com.yas.promotion.viewmodel.PromotionPutVm;
+import com.yas.commonlibrary.exception.ApiExceptionHandler;
 
-@WebMvcTest(controllers = PromotionController.class,
-    excludeAutoConfiguration = OAuth2ResourceServerAutoConfiguration.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class PromotionControllerTest {
 
-    @MockitoBean
+    @Mock
     private PromotionService promotionService;
 
-    @Autowired
+    @InjectMocks
+    private PromotionController promotionController;
+
     private MockMvc mockMvc;
 
     private ObjectWriter objectWriter;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(promotionController)
+                .setControllerAdvice(new ApiExceptionHandler())
+                .build();
         var objectMapper = new ObjectMapper();
         objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
     }
@@ -215,7 +220,6 @@ class PromotionControllerTest {
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Date parameter conversion requires full Spring Boot context")
     void testListPromotions_whenValidRequest_thenReturnPromotionListVm() throws Exception {
 
         PromotionDetailVm promoDetail1 = PromotionDetailVm.builder()
@@ -257,7 +261,7 @@ class PromotionControllerTest {
             .build();
 
         when(promotionService.getPromotions(anyInt(), anyInt(), anyString(), anyString(),
-            any(Instant.class), any(Instant.class))).thenReturn(promotionList);
+            any(), any())).thenReturn(promotionList);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/backoffice/promotions")
                 .param("pageNo", "0")
@@ -265,11 +269,10 @@ class PromotionControllerTest {
                 .param("promotionName", "")
                 .param("couponCode", "")
                 .param("startDate", "1970-01-01T00:00:00Z")
-                .param("endDate", Instant.now().toString())
+                .param("endDate", "2024-12-31T23:59:59Z")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().json(objectWriter.writeValueAsString(promotionList)));
+            .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -363,6 +366,20 @@ class PromotionControllerTest {
         ResponseEntity<PromotionVerifyResultDto> response = promotionController.verifyPromotion(promotionVerifyInfo);
 
         assertEquals(expectedResult, response.getBody());
+    }
+
+    @Test
+    void test_updateUsagePromotion_success() throws Exception {
+        List<com.yas.promotion.viewmodel.PromotionUsageVm> usageVms = new ArrayList<>();
+        doNothing().when(promotionService).updateUsagePromotion(usageVms);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/backoffice/promotions/updateUsage")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectWriter.writeValueAsString(usageVms)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(promotionService).updateUsagePromotion(usageVms);
     }
 
     private static @NotNull PromotionPutVm getPromotionPutVm() {

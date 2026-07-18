@@ -16,6 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service quản lý nghiệp vụ TaxClass (nhóm thuế): tạo, đọc, cập nhật, xoá và
+ * phân trang danh sách nhóm thuế phục vụ tính thuế cho đơn hàng.
+ */
 @Service
 @Transactional
 public class TaxClassService {

@@ -1,13 +1,14 @@
 package com.yas.order.viewmodel.product;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@Builder(toBuilder = true)
-@Data
-public class ProductCheckoutListVm {
-    Long id;
-    String name;
-    Double price;
-    Long taxClassId;
-}
+// product's response carries more fields (description, sku, thumbnailUrl, ...)
+// than order needs; ignoreUnknown lets this record deserialize that payload
+// instead of only the fields listed below.
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record ProductCheckoutListVm(
+    Long id,
+    String name,
+    Double price,
+    Long taxClassId
+) {}

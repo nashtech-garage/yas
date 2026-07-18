@@ -78,6 +78,37 @@ class OrderServiceTest {
     }
 
     @Test
+    void testUpdateCheckoutStatus_whenCancelled_sendsPaymentFailedToOrderService() {
+        // order-service's CheckoutState enum has no CANCELLED value, only PAYMENT_FAILED,
+        // so a cancelled PayPal payment must be translated before being sent over.
+        CapturedPayment capturedPayment = CapturedPayment.builder()
+            .checkoutId("checkout-1234")
+            .paymentMethod(PaymentMethod.PAYPAL)
+            .paymentStatus(PaymentStatus.CANCELLED)
+            .failureMessage("ORDER_NOT_APPROVED")
+            .build();
+
+        URI url = UriComponentsBuilder
+            .fromUriString(serviceUrlConfig.order())
+            .path("/storefront/checkouts/status")
+            .buildAndExpand()
+            .toUri();
+
+        RestClient.RequestBodyUriSpec requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
+        when(restClient.put()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(url)).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.body(new CheckoutStatusVm("checkout-1234", "PAYMENT_FAILED")))
+            .thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.headers(any())).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.body(Long.class)).thenReturn(2L);
+
+        Long result = orderService.updateCheckoutStatus(capturedPayment);
+
+        assertThat(result).isEqualTo(2L);
+    }
+
+    @Test
     void testUpdateOrderStatus_whenNormalCase_returnPaymentOrderStatusVm() {
 
 

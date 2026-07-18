@@ -13,6 +13,7 @@ import com.yas.inventory.config.ServiceUrlConfig;
 import com.yas.inventory.model.enumeration.FilterExistInWhSelection;
 import com.yas.inventory.viewmodel.product.ProductInfoVm;
 import com.yas.inventory.viewmodel.product.ProductQuantityPostVm;
+import com.yas.inventory.viewmodel.product.ProductWireVm;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,10 +67,9 @@ class ProductServiceTest {
         when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
 
-        ProductInfoVm productInfoVm = new ProductInfoVm(productId,
-            "ProductName", "ProductSKU", true);
-        when(responseSpec.body(ProductInfoVm.class))
-            .thenReturn(productInfoVm);
+        ProductWireVm productWireVm = new ProductWireVm(productId, "ProductName", "ProductSKU");
+        when(responseSpec.body(ProductWireVm.class))
+            .thenReturn(productWireVm);
 
         ProductInfoVm result = productService.getProduct(productId);
 
@@ -105,16 +105,36 @@ class ProductServiceTest {
         when(requestHeadersUriSpec.headers(any())).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
         ResponseEntity responseEntity = mock(ResponseEntity.class);
-        ProductInfoVm productInfoVm = new ProductInfoVm(1L, productName, productSku, true);
-        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductInfoVm>>() {}))
+        ProductWireVm productWireVm = new ProductWireVm(1L, productName, productSku);
+        when(responseSpec.toEntity(new ParameterizedTypeReference<List<ProductWireVm>>() {}))
             .thenReturn(responseEntity);
-        when(responseEntity.getBody()).thenReturn(List.of(productInfoVm));
+        when(responseEntity.getBody()).thenReturn(List.of(productWireVm));
 
         List<ProductInfoVm> result = productService.filterProducts(productName, productSku, productIds, selection);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(productName, result.getFirst().name());
+    }
+
+    @Test
+    void testHandleProductInfoFallback_shouldThrowException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        try {
+            productService.handleProductInfoFallback(throwable);
+        } catch (Throwable t) {
+            assertEquals(throwable, t);
+        }
+    }
+
+    @Test
+    void testHandleProductInfoListFallback_shouldThrowException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        try {
+            productService.handleProductInfoListFallback(throwable);
+        } catch (Throwable t) {
+            assertEquals(throwable, t);
+        }
     }
 
     @Test

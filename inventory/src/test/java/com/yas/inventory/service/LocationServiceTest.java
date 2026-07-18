@@ -175,4 +175,14 @@ class LocationServiceTest {
         assertDoesNotThrow(() -> locationService.deleteAddress(addressId));
     }
 
+    @Test
+    void testHandleAddressDetailFallback_shouldThrowException() {
+        Throwable throwable = new RuntimeException("Test exception");
+        try {
+            locationService.handleBodilessFallbackWrapper(throwable);
+        } catch (Throwable t) {
+            assertThat(t).isEqualTo(throwable);
+        }
+    }
+
 }

@@ -218,7 +218,7 @@ const Checkout = () => {
     order.checkoutId = id as string;
     order.email = checkout?.email!;
     order.note = data.note;
-    order.tax = 0;
+    order.tax = orderItems.reduce((result, item) => result + (item.taxAmount ?? 0), 0);
     order.discount = checkout?.totalDiscountAmount;
     order.numberItem = orderItems.reduce((result, item) => result + item.quantity, 0);
     order.totalPrice = orderItems.reduce(

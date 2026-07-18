@@ -1,27 +1,31 @@
 package com.yas.location.controller;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.yas.location.model.Country;
 import com.yas.location.model.StateOrProvince;
 import com.yas.location.service.StateOrProvinceService;
 import com.yas.location.utils.Constants;
+import com.yas.location.viewmodel.stateorprovince.StateOrProvinceListGetVm;
 import com.yas.location.viewmodel.stateorprovince.StateOrProvincePostVm;
+import com.yas.location.viewmodel.stateorprovince.StateOrProvinceVm;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = StateOrProvinceController.class,
@@ -40,6 +44,50 @@ class StateOrProvinceControllerTest {
     @BeforeEach
     void setUp() {
         objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    }
+
+    @Test
+    void testGetPageableStateOrProvinces_thenReturnOk() throws Exception {
+        given(stateOrProvinceService.getPageableStateOrProvinces(0, 10, 1L)).willReturn(new StateOrProvinceListGetVm(List.of(), 0, 0, 0, 0, false));
+
+        this.mockMvc.perform(get(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/paging")
+                .param("pageNo", "0")
+                .param("pageSize", "10")
+                .param("countryId", "1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAllByCountryId_thenReturnOk() throws Exception {
+        given(stateOrProvinceService.getAllByCountryId(1L)).willReturn(List.of());
+
+        this.mockMvc.perform(get(Constants.ApiConstant.STATE_OR_PROVINCES_URL)
+                .param("countryId", "1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetStateOrProvince_thenReturnOk() throws Exception {
+        given(stateOrProvinceService.findById(1L)).willReturn(new StateOrProvinceVm(1L, "name", "code", "type", 1L));
+
+        this.mockMvc.perform(get(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetStateOrProvinceAndCountryNames_thenReturnOk() throws Exception {
+        given(stateOrProvinceService.getStateOrProvinceAndCountryNames(List.of(1L))).willReturn(List.of());
+
+        this.mockMvc.perform(get(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/state-country-names")
+                .param("stateOrProvinceIds", "1"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void testDeleteStateOrProvince_thenReturnOk() throws Exception {
+        this.mockMvc.perform(delete(Constants.ApiConstant.STATE_OR_PROVINCES_URL + "/1"))
+            .andExpect(status().isNoContent());
+        verify(stateOrProvinceService).delete(1L);
     }
 
     @Test

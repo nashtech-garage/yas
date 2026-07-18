@@ -33,7 +33,7 @@ public class ProductSyncDataConsumer extends BaseCdcConsumer<ProductMsgKey, Prod
 
     @KafkaListener(
         id = "product-sync-es",
-        groupId = "product-sync-search",
+        groupId = "${product.consumer.group-id:product-sync-search}",
         topics = "${product.topic.name}",
         containerFactory = PRODUCT_CDC_LISTENER_CONTAINER_FACTORY
     )

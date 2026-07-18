@@ -1,0 +1,237 @@
+version: 1
+registry:
+  provider: dockerhub
+  imageTemplate: "docker.io/${DOCKERHUB_USERNAME}/yas-${service}:${tag}"
+defaults:
+  branch: main
+  tagStrategy:
+    feature: commit-sha
+    main: ["commit-sha", "main", "latest"]
+    release: ["commit-sha", "vX.Y.Z"]
+dependencies:
+  platform:
+    - postgres
+    - redis
+    - keycloak
+    - kafka
+    - zookeeper
+    - elasticsearch
+    - yas-configuration
+services:
+  - name: cart
+    path: cart
+    dockerfile: cart/Dockerfile
+    chart: k8s/charts/cart
+    imageName: yas-cart
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres, redis]
+  - name: customer
+    path: customer
+    dockerfile: customer/Dockerfile
+    chart: k8s/charts/customer
+    imageName: yas-customer
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres, keycloak]
+  - name: inventory
+    path: inventory
+    dockerfile: inventory/Dockerfile
+    chart: k8s/charts/inventory
+    imageName: yas-inventory
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres]
+  - name: location
+    path: location
+    dockerfile: location/Dockerfile
+    chart: k8s/charts/location
+    imageName: yas-location
+    type: backend
+    deploy: true
+    demoRole: runtime-dependency
+    dependencyReason: "Required by tax for the teacher demo tax flow."
+    dependencies: [postgres]
+  - name: media
+    path: media
+    dockerfile: media/Dockerfile
+    chart: k8s/charts/media
+    imageName: yas-media
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres]
+  - name: order
+    path: order
+    dockerfile: order/Dockerfile
+    chart: k8s/charts/order
+    imageName: yas-order
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres, kafka, cart, customer, product, tax, payment]
+  - name: payment
+    path: payment
+    dockerfile: payment/Dockerfile
+    chart: k8s/charts/payment
+    imageName: yas-payment
+    type: backend
+    deploy: true
+    demoRole: runtime-dependency
+    dependencyReason: "Required by order checkout flow referenced by the teacher service note."
+    dependencies: [postgres, payment-paypal]
+  - name: payment-paypal
+    path: payment-paypal
+    dockerfile: payment-paypal/Dockerfile
+    chart: k8s/charts/payment-paypal
+    imageName: yas-payment-paypal
+    type: backend
+    deploy: true
+    demoRole: runtime-dependency
+    dependencyReason: "Required by payment service startup and checkout demo."
+    dependencies: [postgres]
+  - name: product
+    path: product
+    dockerfile: product/Dockerfile
+    chart: k8s/charts/product
+    imageName: yas-product
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres, elasticsearch, media]
+  - name: promotion
+    path: promotion
+    dockerfile: promotion/Dockerfile
+    chart: k8s/charts/promotion
+    imageName: yas-promotion
+    type: backend
+    deploy: false
+    demoRole: optional
+    exclusionReason: "Outside the teacher-required CQ demo service list."
+    dependencies: [postgres, product]
+  - name: rating
+    path: rating
+    dockerfile: rating/Dockerfile
+    chart: k8s/charts/rating
+    imageName: yas-rating
+    type: backend
+    deploy: false
+    demoRole: optional
+    exclusionReason: "Outside the teacher-required CQ demo service list."
+    dependencies: [postgres, customer, product]
+  - name: search
+    path: search
+    dockerfile: search/Dockerfile
+    chart: k8s/charts/search
+    imageName: yas-search
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [elasticsearch, kafka]
+  - name: tax
+    path: tax
+    dockerfile: tax/Dockerfile
+    chart: k8s/charts/tax
+    imageName: yas-tax
+    type: backend
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [postgres, location]
+  - name: webhook
+    path: webhook
+    dockerfile: webhook/Dockerfile
+    chart: k8s/charts/webhook
+    imageName: yas-webhook
+    type: backend
+    deploy: false
+    demoRole: optional
+    exclusionReason: "Outside the teacher-required CQ demo service list."
+    dependencies: [postgres, kafka]
+  - name: sampledata
+    path: sampledata
+    dockerfile: sampledata/Dockerfile
+    chart: k8s/charts/sampledata
+    imageName: yas-sampledata
+    type: backend
+    deploy: true
+    demoRole: teacher-required-run-once
+    runOnce: true
+    deploymentNote: "Build and publish the seed image, but keep the runtime Deployment at 0 replicas; data is loaded by the one-shot seed Job."
+    dependencies: [postgres, backend-services]
+  - name: recommendation
+    path: recommendation
+    dockerfile: recommendation/Dockerfile
+    chart: k8s/charts/recommendation
+    imageName: yas-recommendation
+    type: backend
+    deploy: false
+    demoRole: optional
+    exclusionReason: "Outside the teacher-required CQ demo service list."
+    dependencies: [postgres, pgvector, kafka]
+  - name: backoffice-bff
+    path: backoffice-bff
+    dockerfile: backoffice-bff/Dockerfile
+    chart: k8s/charts/backoffice-bff
+    imageName: yas-backoffice-bff
+    type: bff
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [keycloak, redis, backend-services]
+  - name: storefront-bff
+    path: storefront-bff
+    dockerfile: storefront-bff/Dockerfile
+    chart: k8s/charts/storefront-bff
+    imageName: yas-storefront-bff
+    type: bff
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [keycloak, redis, backend-services]
+  - name: backoffice-ui
+    path: backoffice
+    dockerfile: backoffice/Dockerfile
+    chart: k8s/charts/backoffice-ui
+    imageName: yas-backoffice
+    type: ui
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [backoffice-bff]
+  - name: storefront-ui
+    path: storefront
+    dockerfile: storefront/Dockerfile
+    chart: k8s/charts/storefront-ui
+    imageName: yas-storefront
+    type: ui
+    deploy: true
+    demoRole: teacher-required
+    dependencies: [storefront-bff]
+  - name: swagger-ui
+    path: null
+    dockerfile: null
+    chart: charts/swagger-ui
+    imageName: swagger-ui
+    type: documentation
+    deploy: false
+    demoRole: teacher-required-third-party
+    exclusionReason: "Runtime chart uses swaggerapi/swagger-ui directly; Jenkins does not build a YAS image."
+    dependencies: [backend-services]
+  - name: common-library
+    path: common-library
+    dockerfile: null
+    chart: null
+    imageName: null
+    type: library
+    deploy: false
+    exclusionReason: "Maven dependency only; no runtime image."
+    dependencies: []
+  - name: delivery
+    path: delivery
+    dockerfile: null
+    chart: null
+    imageName: yas-delivery
+    type: backend
+    deploy: false
+    exclusionReason: "Maven module exists, but this fork does not include a Dockerfile or Helm chart for delivery."
+    dependencies: [postgres]

@@ -95,7 +95,7 @@ public class ProductService extends AbstractCircuitBreakFallbackHandler {
         } else {
             return response.productCheckoutListVms()
                     .stream()
-                    .collect(Collectors.toMap(ProductCheckoutListVm::getId, Function.identity()));
+                    .collect(Collectors.toMap(ProductCheckoutListVm::id, Function.identity()));
         }
     }
 
