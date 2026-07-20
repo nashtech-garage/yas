@@ -1,0 +1,28 @@
+name: Arcade Architecture Analysis
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  analyze:
+    name: Architecture advisory
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lemduc/arcade-agent/actions/analyze@v0.1.1
+        with:
+          arcade-agent-version: "0.1.1"
+          language: java
+          primary-algorithm: pkg
+          run-secondary-analyses: "false"
+          upload-artifacts: "true"
+          post-pr-comment: "true"
