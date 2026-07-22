@@ -35,7 +35,7 @@ CHANGED_SERVICES=()
 
 for service in "${SUPPORTED_SERVICES[@]}"; do
     for file in "${CHANGED_FILES[@]}"; do
-        if [[ "$file" == "$service" || "$file" == "$service/" ]]; then
+        if [[ "$file" == "$service" || "$file" == "$service/"* ]]; then
             CHANGED_SERVICES+=("$service")
             break
         fi
@@ -63,7 +63,7 @@ fi
 echo 
 echo "Changed services:"
 
-if [[ ${#CHANGED_SERVICES[@]} -eq 0]]; then
+if [[ ${#CHANGED_SERVICES[@]} -eq 0 ]]; then
     echo "None"
 else
     printf -- "- %s\n" "${CHANGED_SERVICES[@]}"
