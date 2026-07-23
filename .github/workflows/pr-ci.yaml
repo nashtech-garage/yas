@@ -61,3 +61,14 @@ jobs:
             - name: Test service
               shell: bash
               run: mvn -B -pl "${{ matrix.service }}" -am test
+
+            - name: Upload test reports
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-reports-${{ matrix.service }}-${{ github.event.pull_request.head.sha }}
+                  path: |
+                      ${{ matrix.service }}/target/surefire-reports/
+                      ${{ matrix.service }}/target/failsafe-reports/
+                  if-no-files-found: warn
+                  retention-days: 7
